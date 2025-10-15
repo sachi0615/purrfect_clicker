@@ -1,27 +1,49 @@
 import time
+from typing import Dict
+
+from config import BALANCE_CONFIG, PRESTIGE_CONFIG
 from shop import SHOP
+
 
 class GameState:
     def __init__(self):
-        self.happy = 0.0               # 通貨：ハッピー
-        self.total_pets = 0            # 総なで回数
-        self.pet_power = 1.0           # 1クリック当たり
-        self.pps = 0.0                 # 自動生産/秒
-        self.owned = {u.key: 0 for u in SHOP}
+        self.happy = 0.0
+        self.total_pets = 0
+        self.pet_power = 1.0
+        self.pps = 0.0
+        self.owned: Dict[str, int] = {u.key: 0 for u in SHOP}
         self.playtime_sec = 0
         self.last_played_at = time.time()
-        # コンボ＆クリティカル用
         self.combo = 0
         self.last_click_time = 0.0
-        # ごきげんタイム
         self.skill_cd = 0.0
         self.skill_rem = 0.0
-        # --- レベルシステム ---
         self.level = 1
         self.exp = 0.0
-        self.next_exp = 10.0
-        # --- 実績（解放済みキー配列） ---
+        self.next_exp = BALANCE_CONFIG["level_exp_base"]
         self.achievements = []
+        self.prestige_points = 0
+        self.prestige_mult = 1.0
+        self.lifetime_happy = 0.0
+        self.update_prestige_multiplier()
+
+    def update_prestige_multiplier(self):
+        self.prestige_mult = 1.0 + PRESTIGE_CONFIG["per_point_mult"] * self.prestige_points
+
+    def reset_progress_for_prestige(self):
+        self.happy = 0.0
+        self.total_pets = 0
+        self.pet_power = 1.0
+        self.pps = 0.0
+        self.owned = {u.key: 0 for u in SHOP}
+        self.combo = 0
+        self.last_click_time = 0.0
+        self.skill_cd = 0.0
+        self.skill_rem = 0.0
+        self.level = 1
+        self.exp = 0.0
+        self.next_exp = BALANCE_CONFIG["level_exp_base"]
+        self.recalc_stats()
 
     def recalc_stats(self):
         pps = 0.0
@@ -30,7 +52,9 @@ class GameState:
                 pps += self.owned.get(u.key, 0) * u.gain
         self.pps = pps
 
-    # セーブ・ロード用
+    def effective_pps(self) -> float:
+        return self.pps * self.prestige_mult
+
     def to_dict(self):
         return {
             "happy": self.happy,
@@ -48,25 +72,32 @@ class GameState:
             "exp": self.exp,
             "next_exp": self.next_exp,
             "achievements": self.achievements,
+            "prestige_points": self.prestige_points,
+            "prestige_mult": self.prestige_mult,
+            "lifetime_happy": self.lifetime_happy,
         }
 
     @classmethod
-    def from_dict(cls, d: dict):
+    def from_dict(cls, data: dict):
         g = cls()
-        g.happy = float(d.get("happy", 0))
-        g.total_pets = int(d.get("total_pets", 0))
-        g.pet_power = float(d.get("pet_power", 1))
-        g.pps = float(d.get("pps", 0))
-        g.owned = {**{u.key:0 for u in SHOP}, **d.get("owned", {})}
-        g.playtime_sec = int(d.get("playtime_sec", 0))
-        g.last_played_at = float(d.get("last_played_at", g.last_played_at))
-        g.combo = int(d.get("combo", 0))
-        g.last_click_time = float(d.get("last_click_time", 0.0))
-        g.skill_cd = float(d.get("skill_cd", 0.0))
-        g.skill_rem = float(d.get("skill_rem", 0.0))
-        g.level = int(d.get("level", 1))
-        g.exp = float(d.get("exp", 0.0))
-        g.next_exp = float(d.get("next_exp", 10.0))
-        g.achievements = list(d.get("achievements", []))
+        g.happy = float(data.get("happy", 0.0))
+        g.total_pets = int(data.get("total_pets", 0))
+        g.pet_power = float(data.get("pet_power", 1.0))
+        g.pps = float(data.get("pps", 0.0))
+        owned = data.get("owned", {})
+        g.owned = {**{u.key: 0 for u in SHOP}, **owned}
+        g.playtime_sec = int(data.get("playtime_sec", 0))
+        g.last_played_at = float(data.get("last_played_at", g.last_played_at))
+        g.combo = int(data.get("combo", 0))
+        g.last_click_time = float(data.get("last_click_time", 0.0))
+        g.skill_cd = float(data.get("skill_cd", 0.0))
+        g.skill_rem = float(data.get("skill_rem", 0.0))
+        g.level = int(data.get("level", 1))
+        g.exp = float(data.get("exp", 0.0))
+        g.next_exp = float(data.get("next_exp", BALANCE_CONFIG["level_exp_base"]))
+        g.achievements = list(data.get("achievements", []))
+        g.prestige_points = int(data.get("prestige_points", 0))
+        g.lifetime_happy = float(data.get("lifetime_happy", 0.0))
+        g.update_prestige_multiplier()
         g.recalc_stats()
         return g

@@ -15,5 +15,5 @@ class Achievement:
     key: str
     name: str
     desc: str
-    metric: str  # "happy" | "total_pets" | "pps" | "level"
+    metric: str  # "happy" | "total_pets" | "pps" | "level" | "prestige_points"
     threshold: float

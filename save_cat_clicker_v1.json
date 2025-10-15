@@ -23,5 +23,8 @@
     "pps_10",
     "pets_100",
     "happy_1k"
-  ]
+  ],
+  "prestige_points": 0,
+  "prestige_mult": 1.0,
+  "lifetime_happy": 24473.378450006297
 }

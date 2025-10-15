@@ -1,7 +1,38 @@
-def fmt(n: float) -> str:
-    n = float(n)
-    if n >= 1e12: return f"{n/1e12:.2f}T"
-    if n >= 1e9:  return f"{n/1e9:.2f}B"
-    if n >= 1e6:  return f"{n/1e6:.2f}M"
-    if n >= 1e3:  return f"{n/1e3:.2f}K"
-    return str(int(n))
+SUFFIXES = [
+    "",
+    "K",
+    "M",
+    "B",
+    "T",
+    "Qa",
+    "Qi",
+    "Sx",
+    "Sp",
+    "Oc",
+    "No",
+    "Dc",
+    "Ud",
+    "Dd",
+    "Td",
+    "Qd",
+    "Qn",
+    "Sxd",
+    "Spd",
+    "Ocd",
+    "Nod",
+]
+
+
+def fmt(value: float) -> str:
+    n = float(value)
+    if n == 0:
+        return "0"
+    sign = "-" if n < 0 else ""
+    n = abs(n)
+    magnitude = 0
+    while n >= 1000.0 and magnitude < len(SUFFIXES) - 1:
+        n /= 1000.0
+        magnitude += 1
+    if magnitude == 0:
+        return f"{sign}{int(n)}"
+    return f"{sign}{n:.2f}{SUFFIXES[magnitude]}"

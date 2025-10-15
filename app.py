@@ -1,230 +1,287 @@
-import pygame, sys, time, random, math
-from config import W, H, FPS, BG, TEXT, load_font
-from ui import Button, draw_card, draw_pill, Log, confirm_dialog
-from saveio import save_game, load_game
-from shop import SHOP, price_of
-from util import fmt
-from models import Achievement
+import math
+import random
+import sys
+import time
 
-# ===== 実績の定義 =====
+import pygame
+
+from config import (
+    BALANCE_CONFIG,
+    BG,
+    BORDER,
+    FPS,
+    H,
+    PRESTIGE_CONFIG,
+    TEXT,
+    W,
+    load_font,
+)
+from models import Achievement
+from saveio import load_game, save_game
+from shop import SHOP, price_of
+from state import GameState
+from ui import Button, Log, confirm_dialog, draw_card, draw_pill
+from util import fmt
+
 ACHIEVEMENTS = [
-    Achievement("pets_100",  "はじめの100なで",     "合計100回なでた",           "total_pets", 100),
-    Achievement("pets_1k",   "なで名人",            "合計1,000回なでた",         "total_pets", 1000),
-    Achievement("happy_1k",  "小さな幸せ",          "ハッピー1,000達成",         "happy",      1_000),
-    Achievement("happy_1m",  "大きな幸せ",          "ハッピー1,000,000達成",     "happy",      1_000_000),
-    Achievement("pps_10",    "自動化の芽",          "PPSが10に到達",             "pps",        10),
-    Achievement("pps_100",   "自動化の覇者",        "PPSが100に到達",            "pps",        100),
-    Achievement("lv_5",      "新米キャットテイマー","プレイヤーレベル5到達",      "level",      5),
-    Achievement("lv_10",     "熟練キャットテイマー","プレイヤーレベル10到達",     "level",      10),
+    Achievement("pets_100", "はじめの100なで", "合計100回なでる", "total_pets", 100),
+    Achievement("pets_1k", "なで名人", "合計1,000回なでる", "total_pets", 1_000),
+    Achievement("happy_1k", "小さな幸せ", "ハッピーを1,000獲得", "happy", 1_000),
+    Achievement("happy_1m", "大きな幸せ", "ハッピーを1,000,000獲得", "happy", 1_000_000),
+    Achievement("pps_10", "自動化の芽", "有効PPSを10に到達", "pps", 10),
+    Achievement("pps_100", "自動化の要", "有効PPSを100に到達", "pps", 100),
+    Achievement("lv_5", "新米キャットマスター", "プレイヤーレベル5に到達", "level", 5),
+    Achievement("lv_10", "熟練キャットマスター", "プレイヤーレベル10に到達", "level", 10),
+    Achievement("prestige_1", "初めての転生", "Prestigeポイントを1獲得", "prestige_points", 1),
+    Achievement("prestige_10", "転生の達人", "Prestigeポイントを10獲得", "prestige_points", 10),
 ]
+
+CRIT_CHANCE = 0.10
+CRIT_MULT = 2.0
+COMBO_WINDOW = 1.2
+COMBO_STEP = 0.05
+MAX_COMBO_BONUS = 1.0
+
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((W, H))
-    pygame.display.set_caption("Purrfect Clicker ✨ (modular)")
+    pygame.display.set_caption("Purrfect Clicker ✨")
     clock = pygame.time.Clock()
 
-    font_h1    = load_font(34)
-    font       = load_font(24)
+    font_h1 = load_font(34)
+    font = load_font(24)
     font_small = load_font(20)
+    font_large = load_font(42)
 
-    # ログ
     log = Log(max_lines=6, font=font_small)
+    log.add("ゲームへようこそ！　ねこをなでてハッピーを集めよう")
 
-    # 初回メッセージ
-    log.add("ゲームへようこそ！ 画面左のねこをなでて幸せを集めよう。")
     state = load_game(log)
 
-    # レイアウト
     margin = 16
-    title_rect = pygame.Rect(margin, margin, W - margin*2, 36)
-    pill_h = 30
-    # 5本のまま「プレイ秒」→「レベル」に差し替え（横幅崩さない）
-    pills = [
-        pygame.Rect(margin,             title_rect.bottom + 8, 160, pill_h),  # ハッピー
-        pygame.Rect(margin+168,         title_rect.bottom + 8, 190, pill_h),  # クリック力
-        pygame.Rect(margin+168+198,     title_rect.bottom + 8, 170, pill_h),  # PPS
-        pygame.Rect(margin+168+198+178, title_rect.bottom + 8, 190, pill_h),  # 合計なで
-        pygame.Rect(margin+168+198+178+198, title_rect.bottom + 8, 140, pill_h), # レベル
-    ]
-    left_w = int(W * 0.56)
-    left = pygame.Rect(margin, pills[0].bottom + 10, left_w, H - (pills[0].bottom + 10) - margin)
-    right = pygame.Rect(left.right + margin, left.y, W - left_w - margin*3, left.h)
+    title_rect = pygame.Rect(margin, margin, W - margin * 2, 40)
+    pill_h = 34
+    pill_w = 200
+    gap = 8
 
-    # 左UI
-    click_btn = Button((left.x+16, left.y+16, left.w-32, 140), "なでる！", pygame.font.SysFont(None, 42))
-    skill_btn = Button((left.x+16, click_btn.rect.bottom+10, 240, 36), "ごきげんタイム (Space)", font)
-    save_btn  = Button((skill_btn.rect.right + 10, skill_btn.rect.y, 120, 36), "手動セーブ", font)
-    reset_btn = Button((save_btn.rect.right + 10, save_btn.rect.y, 110, 36), "初期化", font)
-    log_rect  = pygame.Rect(left.x+16, reset_btn.rect.bottom+12, left.w-32, left.bottom - (reset_btn.rect.bottom+24))
+    top_keys = ["happy", "pet_power", "pps", "total_pets"]
+    bottom_keys = ["level", "prestige", "lifetime"]
 
-    # 右UI（ショップ）
-    shop_rect = pygame.Rect(right.x+16, right.y+16, right.w-32, right.h-32)
-    shop_item_h = 88
+    pill_rects = {}
+    for idx, key in enumerate(top_keys):
+        rect = pygame.Rect(
+            margin + idx * (pill_w + gap),
+            title_rect.bottom + 8,
+            pill_w,
+            pill_h,
+        )
+        pill_rects[key] = rect
 
-    # アニメーション：クリック演出（浮遊テキスト＆リング）
-    float_texts = []  # dict: {x,y,vy,life,text}
-    rings = []        # dict: {x,y,r,vr,life}
+    total_top_width = len(top_keys) * pill_w + (len(top_keys) - 1) * gap
+    total_bottom_width = len(bottom_keys) * pill_w + (len(bottom_keys) - 1) * gap
+    bottom_start = margin + (total_top_width - total_bottom_width) / 2
+    base_y = pill_rects[top_keys[0]].bottom + gap
+    for idx, key in enumerate(bottom_keys):
+        rect = pygame.Rect(
+            int(bottom_start + idx * (pill_w + gap)),
+            base_y,
+            pill_w,
+            pill_h,
+        )
+        pill_rects[key] = rect
 
+    info_bottom = max(rect.bottom for rect in pill_rects.values())
+    left_width = int(W * 0.56)
+    left = pygame.Rect(margin, info_bottom + 10, left_width, H - (info_bottom + 10) - margin)
+    right = pygame.Rect(left.right + margin, left.y, W - left_width - margin * 3, left.height)
+
+    click_btn = Button((left.x + 16, left.y + 16, left.w - 32, 140), "なでる！", font_large)
+    skill_btn = Button((left.x + 16, click_btn.rect.bottom + 10, 220, 38), "ごきげんタイム (Space)", font)
+    prestige_btn = Button((skill_btn.rect.right + 12, skill_btn.rect.y, 220, 38), "転生 (未解放)", font)
+
+    prestige_info_height = font_small.get_linesize()
+    save_btn = Button(
+        (left.x + 16, prestige_btn.rect.bottom + prestige_info_height + 12, 160, 36),
+        "手動セーブ",
+        font,
+    )
+    reset_btn = Button(
+        (save_btn.rect.right + 12, save_btn.rect.y, 160, 36),
+        "初期化",
+        font,
+    )
+    log_rect = pygame.Rect(
+        left.x + 16,
+        reset_btn.rect.bottom + 12,
+        left.w - 32,
+        left.bottom - (reset_btn.rect.bottom + 24),
+    )
+
+    shop_rect = pygame.Rect(right.x + 16, right.y + 16, right.w - 32, right.h - 32)
+    shop_item_h = 96
+
+    float_texts = []
+    rings = []
     autosave_timer = 0.0
     playtime_accum = 0.0
-    log.add("ようこそ！なでてハッピーを集め、ねこグッズで加速しよう")
 
     running = True
     while running:
         dt = clock.tick(FPS) / 1000.0
 
-        # ===== 入力 =====
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 save_game(state, log)
-                pygame.quit(); sys.exit()
+                pygame.quit()
+                sys.exit()
 
-            # クリック：なでる
             if click_btn.clicked(ev):
-                now_t = time.time()
-                if now_t - state.last_click_time <= 1.2:
+                now = time.time()
+                if now - state.last_click_time <= COMBO_WINDOW:
                     state.combo += 1
                 else:
                     state.combo = 0
-                state.last_click_time = now_t
+                state.last_click_time = now
 
-                combo_mult = 1.0 + min(1.0, state.combo * 0.05)   # 最大+100%
-                crit = (1 if (random.random() < 0.10) else 0)     # 10%クリティカル
-                crit_mult = 2.0 if crit else 1.0
-                gain = state.pet_power * combo_mult * crit_mult
+                combo_mult = 1.0 + min(MAX_COMBO_BONUS, state.combo * COMBO_STEP)
+                crit = random.random() < CRIT_CHANCE
+                crit_mult = CRIT_MULT if crit else 1.0
+                gain = state.pet_power * combo_mult * crit_mult * state.prestige_mult
+
                 state.happy += gain
+                state.lifetime_happy += gain
                 state.total_pets += 1
+                state.exp += 1.0 + 0.1 * gain
 
-                # --- レベル経験値（クリックで入手） ---
-                state.exp += 1.0 + 0.1 * gain  # クリックの質で微増
-
-                # 浮遊テキスト（アニメ）
                 mx, my = pygame.mouse.get_pos()
-                txt = f"+{fmt(gain)} {'ニャッ!' if crit else ''}"
-                float_texts.append({"x": mx, "y": my, "vy": -50, "life": 0.9, "text": txt})
-                # リング
-                rings.append({"x": mx, "y": my, "r": 2, "vr": 160, "life": 0.35})
+                text = f"+{fmt(gain)}{' ニャッ!' if crit else ''}"
+                float_texts.append({"x": mx, "y": my, "vy": -60, "life": 0.9, "text": text})
+                rings.append({"x": mx, "y": my, "r": 2, "vr": 180, "life": 0.35})
 
-                log.add(f"+{fmt(gain)} ハッピー {'(ニャッ!)' if crit else ''} x{1+state.combo*0.05:.2f}")
-
-                # 実績チェック（クリック系が動いたタイミングで）
+                log.add(
+                    f"+{fmt(gain)} ハッピー "
+                    f"{'(クリティカル)' if crit else ''} x{combo_mult:.2f}"
+                )
                 check_achievements(state, log)
+
+            if skill_btn.clicked(ev):
+                try_activate_skill(state, log)
+
+            if ev.type == pygame.KEYDOWN and ev.key == pygame.K_SPACE:
+                try_activate_skill(state, log)
+
+            if prestige_btn.clicked(ev) and can_prestige(state):
+                gain, total = calculate_prestige_reward(state)
+                new_mult = 1.0 + PRESTIGE_CONFIG["per_point_mult"] * (state.prestige_points + gain)
+                message = (
+                    "転生を行いますか？\n"
+                    f"獲得予定ポイント: +{gain}（累計 {state.prestige_points + gain}）\n"
+                    f"倍率: x{state.prestige_mult:.2f} → x{new_mult:.2f}"
+                )
+                if confirm_dialog(screen, font_h1, font, message):
+                    perform_prestige(state, log, float_texts, rings)
+                    check_achievements(state, log)
 
             if save_btn.clicked(ev):
                 save_game(state, log)
 
             if reset_btn.clicked(ev):
-                if confirm_dialog(screen, font_h1, font, "本当に初期化しますか？\n（元に戻せません）"):
-                    from state import GameState
-                    import os
-                    from config import SAVEFILE
-                    try:
-                        if os.path.exists(SAVEFILE):
-                            os.remove(SAVEFILE)
-                    except: pass
+                if confirm_dialog(screen, font_h1, font, "初期化しますか？\n（元に戻せません）"):
                     state = GameState()
-                    state.recalc_stats()
                     log.add("初期化しました")
 
-            # ごきげんタイム（ボタン or Space）
-            if skill_btn.clicked(ev):
-                try_activate_skill(state, log)
-            if ev.type == pygame.KEYDOWN and ev.key == pygame.K_SPACE:
-                try_activate_skill(state, log)
-
-            # ショップ購入
             if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
                 mx, my = ev.pos
                 y = shop_rect.y + 6
-                for u in SHOP:
-                    row = pygame.Rect(shop_rect.x+6, y, shop_rect.w-12, shop_item_h-8)
-                    btn = pygame.Rect(row.right - 120, row.y + 20, 100, 36)
-                    if btn.collidepoint(mx, my):
-                        owned = state.owned[u.key]
-                        price = price_of(u.base, owned)
+                for upgrade in SHOP:
+                    row = pygame.Rect(shop_rect.x + 6, y, shop_rect.w - 12, shop_item_h - 10)
+                    button_rect = pygame.Rect(row.right - 120, row.y + 24, 100, 36)
+                    if button_rect.collidepoint(mx, my):
+                        owned = state.owned.get(upgrade.key, 0)
+                        price = price_of(upgrade.base, owned)
                         if state.happy >= price:
                             state.happy -= price
-                            state.owned[u.key] = owned + 1
-                            if u.type == "click":
-                                state.pet_power += u.gain
+                            state.owned[upgrade.key] = owned + 1
+                            if upgrade.type == "click":
+                                state.pet_power += upgrade.gain
                             state.recalc_stats()
-                            log.add(f"{u.name} を購入！")
+                            log.add(f"{upgrade.name} を購入！")
                             check_achievements(state, log)
                     y += shop_item_h
 
-        # ===== 進行 =====
-        # ごきげん：PPS+75%/10s, CD 35s
         state.skill_cd = max(0.0, state.skill_cd - dt)
         state.skill_rem = max(0.0, state.skill_rem - dt)
-        skill_mult = 1.0 + (0.75 if state.skill_rem > 0 else 0.0)
+        skill_mult = 1.0 + (BALANCE_CONFIG["skill_bonus"] if state.skill_rem > 0 else 0.0)
 
-        # 自動加算
-        state.happy += state.pps * skill_mult * dt
+        auto_gain = state.pps * state.prestige_mult * skill_mult * dt
+        if auto_gain > 0:
+            state.happy += auto_gain
+            state.lifetime_happy += auto_gain
 
-        # プレイ時間
         playtime_accum += dt
         if playtime_accum >= 1.0:
             inc = int(playtime_accum)
             state.playtime_sec += inc
             playtime_accum -= inc
 
-        # レベル判定（必要経験値は1.35倍で増加）
         leveled = False
         while state.exp >= state.next_exp:
             state.exp -= state.next_exp
             state.level += 1
-            state.next_exp = math.ceil(state.next_exp * 1.35)
-            # レベルアップ報酬：手動なで力を少し底上げ
-            state.pet_power += 0.5
+            state.next_exp = math.ceil(state.next_exp * BALANCE_CONFIG["level_exp_growth"])
+            state.pet_power *= BALANCE_CONFIG["level_pet_power_mult"]
             leveled = True
         if leveled:
-            log.add(f" レベルアップ！ Lv{state.level} に到達（なで力+0.5）")
-            # レベルアップ演出：中央にリング追加
-            cx, cy = W//2, H//2
+            log.add(f"レベルアップ！ Lv{state.level} になった（なで力強化）")
+            cx, cy = W // 2, H // 2
             for i in range(3):
-                rings.append({"x": cx, "y": cy, "r": 8 + i*6, "vr": 200 + i*40, "life": 0.5})
+                rings.append(
+                    {"x": cx, "y": cy, "r": 12 + i * 10, "vr": 200 + i * 30, "life": 0.6}
+                )
             check_achievements(state, log)
 
-        # オートセーブ（10秒）
         autosave_timer += dt
         if autosave_timer >= 10.0:
             autosave_timer = 0.0
             save_game(state, log)
 
-        # ===== アニメ更新 =====
-        for p in list(float_texts):
-            p["y"] += p["vy"] * dt
-            p["life"] -= dt
-            if p["life"] <= 0:
-                float_texts.remove(p)
-        for r in list(rings):
-            r["r"] += r["vr"] * dt
-            r["life"] -= dt
-            if r["life"] <= 0:
-                rings.remove(r)
+        for ft in list(float_texts):
+            ft["y"] += ft["vy"] * dt
+            ft["life"] -= dt
+            if ft["life"] <= 0:
+                float_texts.remove(ft)
 
-        # ===== 描画 =====
+        for ring in list(rings):
+            ring["r"] += ring["vr"] * dt
+            ring["life"] -= dt
+            if ring["life"] <= 0:
+                rings.remove(ring)
+
+        check_achievements(state, log)
+
         screen.fill(BG)
 
-        # タイトル
-        title = font_h1.render("Purrfect Clicker ", True, TEXT)
+        title = font_h1.render("Purrfect Clicker", True, TEXT)
         screen.blit(title, (title_rect.x, title_rect.y))
 
-        # ピル
-        draw_pill(screen, pills[0], f"ハッピー: {fmt(state.happy)}", font)
-        draw_pill(screen, pills[1], f"なで力/クリック: {fmt(state.pet_power)}", font)
-        draw_pill(screen, pills[2], f"毎秒(PPS): {state.pps:.1f}", font)
-        draw_pill(screen, pills[3], f"合計なで回数: {fmt(state.total_pets)}", font)
-        # プレイ秒の代わりにレベル/EXP
-        draw_pill(screen, pills[4], f"Lv{state.level}  ({int(state.exp)}/{int(state.next_exp)})", font)
+        pill_texts = {
+            "happy": f"ハッピー: {fmt(state.happy)}",
+            "pet_power": f"なで力: {fmt(state.pet_power * state.prestige_mult)}",
+            "pps": f"PPS: {fmt(state.effective_pps())}",
+            "total_pets": f"合計なで: {fmt(state.total_pets)}",
+            "level": f"Lv{state.level} ({int(state.exp)}/{int(state.next_exp)})",
+            "prestige": f"Prestige x{state.prestige_mult:.2f}",
+            "lifetime": f"生涯ハッピー: {fmt(state.lifetime_happy)}",
+        }
+        for key, rect in pill_rects.items():
+            draw_pill(screen, rect, pill_texts[key], font_small)
 
-        # 左カード
         draw_card(screen, left)
-        click_btn.text = f"なでる！  +{fmt(state.pet_power)}"
+
+        click_btn.text = f"なでる！ +{fmt(state.pet_power * state.prestige_mult)}"
         click_btn.draw(screen)
 
-        # ごきげんボタン
         if state.skill_rem > 0:
             skill_btn.text = f"ごきげん中… {state.skill_rem:4.1f}s"
             skill_btn.disabled = True
@@ -236,84 +293,151 @@ def main():
             skill_btn.disabled = False
         skill_btn.draw(screen)
 
+        prestige_unlocked = can_prestige(state)
+        prestige_btn.disabled = not prestige_unlocked
+        prestige_btn.text = "転生する" if prestige_unlocked else "転生 (未解放)"
+        prestige_btn.draw(screen)
+
+        prestige_info = build_prestige_info_text(state, prestige_unlocked)
+        info_surf = font_small.render(prestige_info, True, TEXT)
+        screen.blit(info_surf, (prestige_btn.rect.x, prestige_btn.rect.bottom + 4))
+
         save_btn.draw(screen)
         reset_btn.draw(screen)
         log.draw(screen, log_rect)
 
-        # 右カード（ショップ）
         draw_card(screen, right)
-        shop_title = font_h1.render("ねこグッズ ", True, TEXT)
-        screen.blit(shop_title, (right.x+16, right.y+16))
+        shop_title = font_h1.render("ねこショップ", True, TEXT)
+        screen.blit(shop_title, (right.x + 16, right.y + 16))
 
-        y = shop_rect.y + 6
-        for u in SHOP:
-            row = pygame.Rect(shop_rect.x+6, y, shop_rect.w-12, shop_item_h-8)
+        y = shop_rect.y + 10
+        for upgrade in SHOP:
+            row = pygame.Rect(shop_rect.x + 6, y, shop_rect.w - 12, shop_item_h - 10)
             pygame.draw.rect(screen, (40, 34, 64), row, border_radius=10)
-            from config import BORDER
             pygame.draw.rect(screen, BORDER, row, 1, border_radius=10)
 
-            owned = state.owned[u.key]
-            price = price_of(u.base, owned)
+            owned = state.owned.get(upgrade.key, 0)
+            price = price_of(upgrade.base, owned)
 
-            name = font.render(f"{u.name}  x{owned}", True, TEXT)
-            desc = font_small.render(u.desc, True, TEXT)
-            price_s = font_small.render(f"価格: {fmt(price)} ハッピー", True, TEXT)
-            screen.blit(name, (row.x+12, row.y+10))
-            screen.blit(desc, (row.x+12, row.y+10 + font.get_linesize()))
-            screen.blit(price_s, (row.x+12, row.y+10 + font.get_linesize()*2))
+            name = font.render(f"{upgrade.name}  x{owned}", True, TEXT)
+            desc = font_small.render(upgrade.desc, True, TEXT)
+            price_text = font_small.render(f"価格: {fmt(price)} ハッピー", True, TEXT)
 
-            btn = pygame.Rect(row.right - 120, row.y + 20, 100, 36)
-            can = state.happy >= price
-            btn_bg = (200, 160, 80) if can else (90, 78, 120)
-            btn_fg = (30, 22, 12) if can else (200, 190, 210)
-            pygame.draw.rect(screen, btn_bg, btn, border_radius=10)
-            pygame.draw.rect(screen, (230, 200, 120), btn, 1, border_radius=10)
+            screen.blit(name, (row.x + 12, row.y + 8))
+            screen.blit(desc, (row.x + 12, row.y + 8 + font.get_linesize()))
+            screen.blit(price_text, (row.x + 12, row.y + 8 + font.get_linesize() * 2))
+
+            button_rect = pygame.Rect(row.right - 120, row.y + 24, 100, 36)
+            can_buy = state.happy >= price
+            btn_bg = (200, 160, 80) if can_buy else (90, 78, 120)
+            btn_fg = (30, 22, 12) if can_buy else (200, 190, 210)
+            pygame.draw.rect(screen, btn_bg, button_rect, border_radius=10)
+            pygame.draw.rect(screen, (230, 200, 120), button_rect, 1, border_radius=10)
             label = font_small.render("購入", True, btn_fg)
-            screen.blit(label, label.get_rect(center=btn.center))
+            screen.blit(label, label.get_rect(center=button_rect.center))
 
             y += shop_item_h
 
-        # アニメ描画（最後に重ねる）
-        # 浮遊テキスト
-        for p in float_texts:
-            alpha = max(0, min(255, int((p["life"]/0.9)*255)))
-            surf = font_small.render(p["text"], True, (255, 255, 255))
-            s2 = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
-            s2.blit(surf, (0,0))
-            s2.set_alpha(alpha)
-            screen.blit(s2, (p["x"], p["y"]))
-        # リング
-        for r in rings:
-            alpha = max(0, min(120, int((r["life"]/0.5)*120)))
-            s = pygame.Surface((W, H), pygame.SRCALPHA)
-            pygame.draw.circle(s, (255, 255, 255, alpha), (int(r["x"]), int(r["y"])), int(r["r"]), width=2)
-            screen.blit(s, (0,0))
+        for ft in float_texts:
+            alpha = max(0, min(255, int((ft["life"] / 0.9) * 255)))
+            surf = font_small.render(ft["text"], True, (255, 255, 255))
+            fade_surface = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
+            fade_surface.blit(surf, (0, 0))
+            fade_surface.set_alpha(alpha)
+            screen.blit(fade_surface, (ft["x"], ft["y"]))
+
+        for ring in rings:
+            alpha = max(0, min(140, int((ring["life"] / 0.6) * 140)))
+            ring_surface = pygame.Surface((W, H), pygame.SRCALPHA)
+            pygame.draw.circle(
+                ring_surface,
+                (255, 255, 255, alpha),
+                (int(ring["x"]), int(ring["y"])),
+                int(ring["r"]),
+                width=2,
+            )
+            screen.blit(ring_surface, (0, 0))
 
         pygame.display.flip()
 
-def try_activate_skill(state, log):
-    if state.skill_cd <= 0 and state.skill_rem <= 0:
-        state.skill_rem = 10.0
-        state.skill_cd = 35.0
-        log.add("ごきげんタイム発動！（10s, PPS +75%）")
 
-def check_achievements(state, log):
-    # すでに解除済みのキーをset化
+def can_prestige(state: GameState) -> bool:
+    cfg = PRESTIGE_CONFIG
+    return state.happy >= cfg["prestige_unlock_happy"] or state.level >= cfg["prestige_unlock_level"]
+
+
+def calculate_prestige_reward(state: GameState) -> tuple[int, int]:
+    cfg = PRESTIGE_CONFIG
+    lifetime = max(state.lifetime_happy, 1.0)
+    total_points = max(
+        1,
+        int(math.log(max(lifetime, cfg["point_log_base"]), cfg["point_log_base"]) * cfg["point_per_log"]),
+    )
+    gained = max(1, total_points - state.prestige_points)
+    return gained, total_points
+
+
+def perform_prestige(state: GameState, log: Log, float_texts, rings):
+    gain, _ = calculate_prestige_reward(state)
+    state.prestige_points += gain
+    state.update_prestige_multiplier()
+    log.add(f"転生完了！ Prestigeポイント +{gain}（累計 {state.prestige_points}）")
+    log.add(f"恒久倍率が x{state.prestige_mult:.2f} になった")
+
+    cx, cy = W // 2, H // 2
+    float_texts.append({"x": cx - 60, "y": cy - 80, "vy": -20, "life": 1.4, "text": f"+{gain} Prestige!"})
+    for i in range(5):
+        rings.append({"x": cx, "y": cy, "r": 40 + i * 24, "vr": 220 + i * 40, "life": 0.8})
+
+    state.reset_progress_for_prestige()
+    state.last_played_at = time.time()
+
+
+def try_activate_skill(state: GameState, log: Log):
+    if state.skill_cd <= 0 and state.skill_rem <= 0:
+        state.skill_rem = BALANCE_CONFIG["skill_duration"]
+        state.skill_cd = BALANCE_CONFIG["skill_cooldown"]
+        bonus = int(BALANCE_CONFIG["skill_bonus"] * 100)
+        log.add(f"ごきげんタイム発動！ {BALANCE_CONFIG['skill_duration']:g}s間PPS +{bonus}%")
+
+
+def check_achievements(state: GameState, log: Log):
     unlocked = set(state.achievements)
-    def metric_value(m):
-        if m == "happy": return state.happy
-        if m == "total_pets": return state.total_pets
-        if m == "pps": return state.pps
-        if m == "level": return state.level
-        return 0
+
+    def metric_value(metric: str) -> float:
+        if metric == "happy":
+            return state.happy
+        if metric == "total_pets":
+            return state.total_pets
+        if metric == "pps":
+            return state.effective_pps()
+        if metric == "level":
+            return state.level
+        if metric == "prestige_points":
+            return state.prestige_points
+        return 0.0
 
     newly = []
-    for a in ACHIEVEMENTS:
-        if a.key in unlocked: 
+    for achievement in ACHIEVEMENTS:
+        if achievement.key in unlocked:
             continue
-        if metric_value(a.metric) >= a.threshold:
-            state.achievements.append(a.key)
-            newly.append(a)
+        if metric_value(achievement.metric) >= achievement.threshold:
+            state.achievements.append(achievement.key)
+            newly.append(achievement)
 
-    for a in newly:
-        log.add(f" 実績解除：{a.name} － {a.desc}")
+    for achievement in newly:
+        log.add(f"実績解除！ {achievement.name} – {achievement.desc}")
+
+
+def build_prestige_info_text(state: GameState, unlocked: bool) -> str:
+    cfg = PRESTIGE_CONFIG
+    if not unlocked:
+        req_happy = fmt(cfg["prestige_unlock_happy"])
+        return f"解放条件: ハッピー {req_happy} / Lv{cfg['prestige_unlock_level']}"
+    gain, _ = calculate_prestige_reward(state)
+    new_mult = 1.0 + PRESTIGE_CONFIG["per_point_mult"] * (state.prestige_points + gain)
+    return f"転生で +{gain}pt → x{new_mult:.2f}"
+
+
+if __name__ == "__main__":
+    main()
