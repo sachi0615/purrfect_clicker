@@ -1,0 +1,137 @@
+﻿{
+  "app": {
+    "title": "Purrfect Clicker",
+    "subtitle": "A roguelike run built on endless pets"
+  },
+  "nav": {
+    "language": "Language",
+    "settings": "Settings",
+    "openSettings": "Open settings"
+  },
+  "lang": {
+    "ja": "日本語",
+    "en": "English"
+  },
+  "action": {
+    "pet": "Pet!",
+    "save": "Save",
+    "reset": "Rebirth",
+    "boss": "Start Boss Fight",
+    "attack": "Attack!",
+    "close": "Close",
+    "continue": "Continue",
+    "restart": "Start New Run",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "buy": "Buy"
+  },
+  "pills": {
+    "happy": "Happy",
+    "clickPower": "Click Power",
+    "pps": "PPS",
+    "totalPets": "Total Pets",
+    "stage": "Stage",
+    "seed": "Seed"
+  },
+  "clickPad": {
+    "hint": "Click to earn Happy and clear each stage goal.",
+    "comboHint": "You can also press Space to pet.",
+    "floatingCrit": "Critical!"
+  },
+  "stage": {
+    "goalTitle": "Stage Goal",
+    "goalHint": "Reach the target Happy to choose a reward card.",
+    "bossHint": "Defeat the boss to move forward.",
+    "goalProgress": "Progress",
+    "bossReward": "Reward",
+    "stagesCleared": "{{current}} / {{total}} stages",
+    "goalRemaining": "{{value}} remaining",
+    "allCleared": "All stages cleared!",
+    "summaryHint": "Check the run summary for results.",
+    "names": {
+      "goal_0": "Whisker Woods",
+      "goal_1": "Moonlit Hill",
+      "goal_2": "Bell Path",
+      "boss_0": "Guardian Gate",
+      "boss_1": "Aurora Throne"
+    }
+  },
+  "shop": {
+    "title": "Shop",
+    "owned": "Owned",
+    "price": "Price",
+    "empty": "No upgrades available right now.",
+    "discount": "Discount active",
+    "helper": "Shop upgrades reset when the run ends.",
+    "items": {
+      "soft_brush": { "name": "Soft Brush", "desc": "Increase click power by +0.5." },
+      "treat_dispenser": { "name": "Treat Dispenser", "desc": "Increase passive income by +0.4." },
+      "tower_upgrade": { "name": "Tower Upgrade", "desc": "Increase click power by +1.2." },
+      "auto_cleaner": { "name": "Auto Cleaner", "desc": "Increase passive income by +2.5." }
+    }
+  },
+  "boss": {
+    "title": "Boss Fight",
+    "instruction": "Chip away at the boss HP to clear the stage.",
+    "hp": "HP",
+    "reward": "Reward",
+    "clickPower": "Click Power",
+    "enemies": {
+      "forest_guardian": "Forest Guardian",
+      "clockwork_cat": "Clockwork Cat",
+      "shadow_pouncer": "Shadow Pouncer",
+      "crystal_lynx": "Crystal Lynx",
+      "aurora_tiger": "Aurora Tiger"
+    }
+  },
+  "reward": {
+    "title": "Choose a Reward",
+    "helper": "Selected effects persist until the run ends.",
+    "button": "Take this card",
+    "toast": "Picked {{card}}!",
+    "cards": {
+      "claw_training": { "name": "Claw Training", "desc": "Increase click power by 50%." },
+      "sharp_reflex": { "name": "Sharp Reflex", "desc": "Add +10% critical chance." },
+      "perfect_pounce": { "name": "Perfect Pounce", "desc": "Boost critical multiplier by 25%." },
+      "cozy_blanket": { "name": "Cozy Blanket", "desc": "Increase passive income by 25%." },
+      "long_play": { "name": "Long Play Session", "desc": "Extend skill duration by +3 seconds." },
+      "focused_spirit": { "name": "Focused Spirit", "desc": "Reduce skill cooldown by 20%." },
+      "lucky_cache": { "name": "Lucky Cache", "desc": "Gain a burst of Happy immediately." },
+      "boss_instinct": { "name": "Boss Instinct", "desc": "Clicks deal 30% more damage during boss fights." },
+      "shoployalty": { "name": "Shop Loyalty", "desc": "All shop prices are reduced by 10%." },
+      "fast_paws": { "name": "Fast Paws", "desc": "Increase click power by 20%." },
+      "steady_rhythm": { "name": "Steady Rhythm", "desc": "Passive income +15% and click power +10%." }
+    }
+  },
+  "summary": {
+    "titleCleared": "Run Cleared!",
+    "titleEnded": "Run Finished",
+    "totalHappy": "Total Happy",
+    "stages": "Stages Reached",
+    "seed": "Seed Used",
+    "souls": "Total Cat Souls",
+    "cards": "Selected Cards",
+    "noCards": "No reward cards were taken this run.",
+    "runId": "Run ID"
+  },
+  "meta": {
+    "title": "Meta Progress (Work in Progress)",
+    "helper": "Cat souls carry between runs. Permanent upgrades are coming soon."
+  },
+  "toast": {
+    "saved": "Progress saved!",
+    "reward": "You gained {{card}}.",
+    "copied": "Copied to clipboard."
+  },
+  "log": {
+    "gainHappy": "+{{amount}} Happy {{crit}}x{{multiplier}}",
+    "crit": "Critical! ",
+    "skillActive": "Good Mood activated! Happy gain +{{bonus}}% for {{duration}}s",
+    "stageCleared": "Cleared {{name}}.",
+    "bossDefeated": "Defeated {{name}}!"
+  },
+  "settings": {
+    "title": "Settings",
+    "comingSoon": "More options will arrive in a future update."
+  }
+}

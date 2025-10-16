@@ -1,22 +1,22 @@
+import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import { Section } from './Section';
 import { useMetaStore } from '../store/meta';
 
 export function MetaPanel() {
+  const { t } = useTranslation();
   const meta = useMetaStore((state) => state.meta);
 
   return (
-    <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-lg backdrop-blur">
-      <h2 className="text-lg font-semibold text-plum-800">Meta Progress (Coming Soon)</h2>
-      <p className="mt-1 text-sm text-plum-600">
-        Spend cat souls here once permanent upgrades are available. For now this panel only tracks
-        your current total.
-      </p>
-      <div className="mt-3 rounded-2xl border border-plum-100 bg-plum-50/60 p-4 text-2xl font-bold text-plum-700">
-        {meta.catSouls} Souls
+    <Section
+      title={t('meta.title')}
+      description={t('meta.helper')}
+      icon={<Sparkles className="h-5 w-5 text-plum-500" aria-hidden />}
+    >
+      <div className="rounded-2xl border border-plum-100 bg-white/80 p-4 text-center text-2xl font-bold text-plum-700 shadow-sm md:text-3xl">
+        {meta.catSouls}
       </div>
-      <div className="mt-4 space-y-2 text-sm text-plum-500">
-        <p>Upgrade details will be added in a future update.</p>
-        <p>Keep clearing runs to hoard more souls in the meantime!</p>
-      </div>
-    </div>
+    </Section>
   );
 }

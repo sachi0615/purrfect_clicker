@@ -1,0 +1,137 @@
+﻿{
+  "app": {
+    "title": "Purrfect Clicker",
+    "subtitle": "なでて育てるローグライク・ラン"
+  },
+  "nav": {
+    "language": "言語",
+    "settings": "設定",
+    "openSettings": "設定を開く"
+  },
+  "lang": {
+    "ja": "日本語",
+    "en": "English"
+  },
+  "action": {
+    "pet": "なでる！",
+    "save": "セーブ",
+    "reset": "転生する",
+    "boss": "ボス戦を開始",
+    "attack": "攻撃！",
+    "close": "閉じる",
+    "continue": "続ける",
+    "restart": "もう一度挑戦",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "buy": "購入する"
+  },
+  "pills": {
+    "happy": "ハッピー",
+    "clickPower": "クリック力",
+    "pps": "毎秒",
+    "totalPets": "なで回数",
+    "stage": "ステージ",
+    "seed": "シード"
+  },
+  "clickPad": {
+    "hint": "クリックしてハッピーを集め、ステージを進めましょう。",
+    "comboHint": "スペースキーでもなでられます。",
+    "floatingCrit": "クリティカル！"
+  },
+  "stage": {
+    "goalTitle": "ステージ目標",
+    "goalHint": "目標ハッピーに到達すると報酬カードを選べます。",
+    "bossHint": "ボスを倒すと次のステージへ進めます。",
+    "goalProgress": "進捗",
+    "bossReward": "撃破報酬",
+    "stagesCleared": "{{current}} / {{total}} ステージ",
+    "goalRemaining": "残り {{value}}",
+    "allCleared": "すべてのステージをクリアしました！",
+    "summaryHint": "ラン結果をご確認ください。",
+    "names": {
+      "goal_0": "ひげの森",
+      "goal_1": "月光の丘",
+      "goal_2": "鈴の小径",
+      "boss_0": "守護者の門",
+      "boss_1": "オーロラの玉座"
+    }
+  },
+  "shop": {
+    "title": "ショップ",
+    "owned": "所持数",
+    "price": "価格",
+    "empty": "購入できるアイテムがありません。",
+    "discount": "割引中",
+    "helper": "このショップの強化はランが終わるとリセットされます。",
+    "items": {
+      "soft_brush": { "name": "やわらかブラシ", "desc": "クリック力が +0.5 上昇します。" },
+      "treat_dispenser": { "name": "おやつディスペンサー", "desc": "毎秒のハッピーが +0.4 上昇します。" },
+      "tower_upgrade": { "name": "タワー強化", "desc": "クリック力が +1.2 上昇します。" },
+      "auto_cleaner": { "name": "自動お掃除ロボ", "desc": "毎秒のハッピーが +2.5 上昇します。" }
+    }
+  },
+  "boss": {
+    "title": "ボス戦",
+    "instruction": "ボスのHPを削り切りましょう。",
+    "hp": "HP",
+    "reward": "報酬",
+    "clickPower": "クリック力",
+    "enemies": {
+      "forest_guardian": "森の番猫",
+      "clockwork_cat": "歯車キャット",
+      "shadow_pouncer": "影のハンター",
+      "crystal_lynx": "クリスタルリンクス",
+      "aurora_tiger": "オーロラタイガー"
+    }
+  },
+  "reward": {
+    "title": "報酬カードを選択",
+    "helper": "選んだ効果はラン終了まで継続します。",
+    "button": "このカードにする",
+    "toast": "{{card}} を選択しました！",
+    "cards": {
+      "claw_training": { "name": "肉球トレーニング", "desc": "クリック力が 50% 上昇します。" },
+      "sharp_reflex": { "name": "鋭い反射神経", "desc": "クリティカル率が +10% されます。" },
+      "perfect_pounce": { "name": "完璧な跳躍", "desc": "クリティカル倍率が 25% 上昇します。" },
+      "cozy_blanket": { "name": "ぬくぬく毛布", "desc": "毎秒ハッピーが 25% 増加します。" },
+      "long_play": { "name": "あそびたい盛り", "desc": "スキル効果時間が +3 秒延長されます。" },
+      "focused_spirit": { "name": "集中する瞳", "desc": "スキルクールダウンが 20% 短縮されます。" },
+      "lucky_cache": { "name": "幸運の隠し場所", "desc": "大量のハッピーを即時で獲得します。" },
+      "boss_instinct": { "name": "ボスの弱点", "desc": "ボス戦のクリック力が 30% 上昇します。" },
+      "shoployalty": { "name": "常連割引", "desc": "ショップの価格が 10% 割引になります。" },
+      "fast_paws": { "name": "俊敏な手つき", "desc": "クリック力が 20% 上昇します。" },
+      "steady_rhythm": { "name": "決まったリズム", "desc": "毎秒ハッピー +15%、クリック力 +10%。" }
+    }
+  },
+  "summary": {
+    "titleCleared": "完全クリア！",
+    "titleEnded": "ラン終了",
+    "totalHappy": "総獲得ハッピー",
+    "stages": "到達ステージ",
+    "seed": "使用シード",
+    "souls": "累計猫魂",
+    "cards": "選択したカード",
+    "noCards": "今回のランではカードを選択していません。",
+    "runId": "ランID"
+  },
+  "meta": {
+    "title": "メタ進行（準備中）",
+    "helper": "猫魂はランを周回すると貯まります。アップグレードは今後追加予定です。"
+  },
+  "toast": {
+    "saved": "セーブしました！",
+    "reward": "{{card}} を獲得しました。",
+    "copied": "クリップボードにコピーしました。"
+  },
+  "log": {
+    "gainHappy": "+{{amount}} ハッピー {{crit}}x{{multiplier}}",
+    "crit": "クリティカル！ ",
+    "skillActive": "ごきげんタイム発動！ {{duration}} 秒間ハッピー獲得量 +{{bonus}}%",
+    "stageCleared": "{{name}} をクリアしました。",
+    "bossDefeated": "{{name}} を倒しました！"
+  },
+  "settings": {
+    "title": "設定",
+    "comingSoon": "詳細設定は近日公開予定です。"
+  }
+}

@@ -1,41 +1,59 @@
+import { Cat as CatIcon, Coins, Gauge, Hand, Hash, Map } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 import { fmt } from '../lib/format';
+import { cn } from '../lib/utils';
 import { useRunStore } from '../store/run';
 
-const labels = [
-  { key: 'happy', label: 'Happy' },
-  { key: 'click', label: 'Click' },
-  { key: 'pps', label: 'PPS' },
-  { key: 'pets', label: 'Total Pets' },
-  { key: 'stage', label: 'Stage' },
-  { key: 'seed', label: 'Seed' },
-];
+const PILL_META = [
+  { key: 'happy', icon: Coins },
+  { key: 'clickPower', icon: Hand },
+  { key: 'pps', icon: Gauge },
+  { key: 'totalPets', icon: CatIcon },
+  { key: 'stage', icon: Map },
+  { key: 'seed', icon: Hash },
+] as const;
 
 export function TopPills() {
+  const { t } = useTranslation();
   const run = useRunStore((state) => state.run);
   if (!run) {
     return null;
   }
+
   const currentStage = Math.min(run.stageIndex + 1, run.stages.length);
-  const display = {
+  const display: Record<string, string> = {
     happy: fmt(run.happy),
-    click: fmt(run.clickPower * (run.tempMods.clickMult ?? 1)),
+    clickPower: fmt(run.clickPower * (run.tempMods.clickMult ?? 1)),
     pps: fmt(run.pps * (run.tempMods.ppsMult ?? 1)),
-    pets: fmt(run.totalPets),
+    totalPets: fmt(run.totalPets),
     stage: `${currentStage}/${run.stages.length}`,
     seed: String(run.seed),
   };
 
   return (
-    <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-      {labels.map((pill) => (
-        <div
-          key={pill.key}
-          className="rounded-2xl border border-white/60 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
-        >
-          <div className="text-xs uppercase tracking-wide text-plum-500">{pill.label}</div>
-          <div className="mt-1 text-lg font-semibold text-plum-900">{display[pill.key as keyof typeof display]}</div>
-        </div>
-      ))}
+    <div className="overflow-x-auto">
+      <div className="flex min-w-max gap-3">
+        {PILL_META.map((pill) => {
+          const Icon = pill.icon;
+          return (
+            <article
+              key={pill.key}
+              className={cn(
+                'flex min-w-[150px] flex-col gap-2 rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-md backdrop-blur',
+              )}
+            >
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-plum-500 md:text-sm">
+                <Icon className="h-4 w-4" aria-hidden />
+                {t(`pills.${pill.key}`)}
+              </div>
+              <div className="text-lg font-semibold text-plum-900 md:text-xl">
+                {display[pill.key]}
+              </div>
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }

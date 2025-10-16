@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { fmt } from '../lib/format';
+import i18n from '../i18n';
 import { createRng, normalizedSeedFrom, shuffleInPlace } from '../lib/rng';
 import { getRewardCard } from '../data/cards';
 import { generateStages } from '../data/stages';
@@ -435,9 +436,10 @@ function appendFloatingText(
   value: number,
   crit: boolean,
 ): FloatingText[] {
+  const critText = crit ? ` ${i18n.t('clickPad.floatingCrit')}` : '';
   const next: FloatingText = {
     id: nanoid(),
-    value: `+${fmt(value)}${crit ? '!!' : ''}`,
+    value: `+${fmt(value)}${critText}`,
     life: 1.2,
     offsetX: (Math.random() - 0.5) * 40,
     offsetY: Math.random() * -30,

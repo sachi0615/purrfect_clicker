@@ -1,31 +1,25 @@
-const SUFFIXES = [
-  { value: 1e12, label: 'T' },
-  { value: 1e9, label: 'B' },
-  { value: 1e6, label: 'M' },
-  { value: 1e3, label: 'K' },
-];
+import i18n from '../i18n';
 
-export function fmt(value: number): string {
-  const sign = value < 0 ? '-' : '';
-  const abs = Math.abs(value);
+const formatterCache = new Map<string, Intl.NumberFormat>();
 
-  if (abs < 1) {
-    return `${value.toFixed(2)}`;
+export function fmt(value: number, options: Intl.NumberFormatOptions = {}): string {
+  const locale = i18n.language;
+  const key = `${locale}-${JSON.stringify(options)}`;
+
+  let formatter = formatterCache.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, {
+      notation: 'compact',
+      compactDisplay: 'short',
+      maximumFractionDigits: 2,
+      ...options,
+    });
+    formatterCache.set(key, formatter);
   }
 
-  for (const suffix of SUFFIXES) {
-    if (abs >= suffix.value) {
-      return `${sign}${(abs / suffix.value).toFixed(2)}${suffix.label}`;
-    }
-  }
+  return formatter.format(value);
+}
 
-  if (abs >= 100) {
-    return `${sign}${abs.toFixed(0)}`;
-  }
-
-  if (abs >= 10) {
-    return `${sign}${abs.toFixed(1)}`;
-  }
-
-  return `${sign}${abs.toFixed(2)}`;
+export function fmtInteger(value: number): string {
+  return fmt(value, { maximumFractionDigits: 0, minimumFractionDigits: 0 });
 }
