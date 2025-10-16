@@ -1,12 +1,13 @@
 import { useState } from 'react';
+
 import { SHOP, priceOf } from '../data/shop';
 import { useGameStore } from '../store';
 import type { UpgradeType } from '../types';
 import { fmt } from '../util';
 
 const SHOP_TABS: ReadonlyArray<{ id: UpgradeType; label: string }> = [
-  { id: 'pps', label: 'PPS強化' },
-  { id: 'click', label: 'なで力強化' },
+  { id: 'pps', label: '自動収入' },
+  { id: 'click', label: 'なで力' },
 ];
 
 const Shop = () => {

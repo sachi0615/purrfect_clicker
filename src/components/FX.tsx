@@ -45,8 +45,8 @@ const FX = () => {
         {skill.active
           ? `ごきげんタイム 残り ${skill.timeLeft.toFixed(1)}s`
           : skill.cooldown > 0
-          ? `ごきげんタイム 待機 ${skill.cooldown.toFixed(1)}s`
-          : 'ごきげんタイム Ready!'}
+          ? `ごきげんタイム 冷却中 ${skill.cooldown.toFixed(1)}s`
+          : 'ごきげんタイム 準備完了'}
       </div>
     </div>
   );

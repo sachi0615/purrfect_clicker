@@ -29,7 +29,8 @@ const Buttons = () => {
   const comboPercent = Math.round(combo.bonus * 100);
 
   const handleReset = () => {
-    if (window.confirm('本当に初期化しますか？')) {
+    const ok = window.confirm('本当に初期化しますか？\nこの操作は元に戻せません。');
+    if (ok) {
       reset();
     }
   };
@@ -44,7 +45,9 @@ const Buttons = () => {
         >
           なでる！
           <span className="pet-subtext">
-            {`なで力 ${petPower.toFixed(1)}${comboPercent > 0 ? ` / コンボ +${comboPercent}%` : ''}`}
+            {`なで力 ${petPower.toFixed(1)}${
+              comboPercent > 0 ? ` / コンボ +${comboPercent}%` : ''
+            }`}
           </span>
         </button>
         <FX />
@@ -65,7 +68,7 @@ const Buttons = () => {
         </button>
       </div>
       <div className="button-row button-row--hint">
-        <span>コンボ: 最大 +100%、1.2 秒以内に連打で維持できます。</span>
+        <span>コンボは最大 +100%。1.2 秒以内の連打で維持できます。</span>
         <span>クリティカル: 10% / 2 倍</span>
       </div>
     </div>
