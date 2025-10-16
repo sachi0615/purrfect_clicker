@@ -38,6 +38,64 @@
     "comboHint": "スペースキーでもなでられます。",
     "floatingCrit": "クリティカル！"
   },
+  "skill": {
+    "bar": {
+      "title": "スキル",
+      "helper": "Q/W/E/Rキーで発動。モバイルはタップ。",
+      "activeList": "同時発動中（{{count}}）: {{names}}",
+      "nameSeparator": "、 ",
+      "aria": "{{name}}: {{status}}",
+      "ariaWithHotkey": "{{name}}: {{status}}（{{hotkey}}キー）"
+    },
+    "ready": "使用可能",
+    "active": "発動中",
+    "cooldown": "クールダウン中",
+    "tooltip": {
+      "status": "状態",
+      "duration": "持続時間",
+      "cooldown": "クールダウン",
+      "hotkey": "ホットキー",
+      "effects": "効果",
+      "secondsSuffix": "秒",
+      "adjustment": {
+        "label": "補正",
+        "meta": "メタ",
+        "run": "カード",
+        "none": "変化なし"
+      }
+    },
+    "effect": {
+      "clickMult": "クリック倍率 ×{{value}}",
+      "ppsMult": "PPS ×{{value}}",
+      "critChancePlus": "クリティカル率 +{{value}}%",
+      "critMultPlus": "クリティカル倍率 +{{value}}",
+      "tickRateMult": "tick速度 ×{{value}}"
+    },
+    "toast": {
+      "activated": "{{name}} を発動！",
+      "expired": "{{name}} が終了しました。"
+    },
+    "cheerful": {
+      "name": "ごきげん",
+      "desc": "10秒間 PPS +75%"
+    },
+    "critBoost": {
+      "name": "にゃんクリ",
+      "desc": "12秒間 クリティカル率 +20% / クリ倍率 +0.5"
+    },
+    "clickRush": {
+      "name": "ラッシュ",
+      "desc": "8秒間 クリック倍率 ×1.6"
+    },
+    "overdrive": {
+      "name": "オーバードライブ",
+      "desc": "10秒間 PPSとクリック倍率 ×1.3"
+    },
+    "timeWarp": {
+      "name": "タイムワープ",
+      "desc": "6秒間 tick高速化（上級者向け）"
+    }
+  },
   "stage": {
     "goalTitle": "ステージ目標",
     "goalHint": "目標ハッピーに到達すると報酬カードを選べます。",
@@ -64,10 +122,22 @@
     "discount": "割引中",
     "helper": "このショップの強化はランが終わるとリセットされます。",
     "items": {
-      "soft_brush": { "name": "やわらかブラシ", "desc": "クリック力が +0.5 上昇します。" },
-      "treat_dispenser": { "name": "おやつディスペンサー", "desc": "毎秒のハッピーが +0.4 上昇します。" },
-      "tower_upgrade": { "name": "タワー強化", "desc": "クリック力が +1.2 上昇します。" },
-      "auto_cleaner": { "name": "自動お掃除ロボ", "desc": "毎秒のハッピーが +2.5 上昇します。" }
+      "soft_brush": {
+        "name": "やわらかブラシ",
+        "desc": "クリック力が +0.5 上昇します。"
+      },
+      "treat_dispenser": {
+        "name": "おやつディスペンサー",
+        "desc": "毎秒のハッピーが +0.4 上昇します。"
+      },
+      "tower_upgrade": {
+        "name": "タワー強化",
+        "desc": "クリック力が +1.2 上昇します。"
+      },
+      "auto_cleaner": {
+        "name": "自動お掃除ロボ",
+        "desc": "毎秒のハッピーが +2.5 上昇します。"
+      }
     }
   },
   "boss": {
@@ -90,17 +160,50 @@
     "button": "このカードにする",
     "toast": "{{card}} を選択しました！",
     "cards": {
-      "claw_training": { "name": "肉球トレーニング", "desc": "クリック力が 50% 上昇します。" },
-      "sharp_reflex": { "name": "鋭い反射神経", "desc": "クリティカル率が +10% されます。" },
-      "perfect_pounce": { "name": "完璧な跳躍", "desc": "クリティカル倍率が 25% 上昇します。" },
-      "cozy_blanket": { "name": "ぬくぬく毛布", "desc": "毎秒ハッピーが 25% 増加します。" },
-      "long_play": { "name": "あそびたい盛り", "desc": "スキル効果時間が +3 秒延長されます。" },
-      "focused_spirit": { "name": "集中する瞳", "desc": "スキルクールダウンが 20% 短縮されます。" },
-      "lucky_cache": { "name": "幸運の隠し場所", "desc": "大量のハッピーを即時で獲得します。" },
-      "boss_instinct": { "name": "ボスの弱点", "desc": "ボス戦のクリック力が 30% 上昇します。" },
-      "shoployalty": { "name": "常連割引", "desc": "ショップの価格が 10% 割引になります。" },
-      "fast_paws": { "name": "俊敏な手つき", "desc": "クリック力が 20% 上昇します。" },
-      "steady_rhythm": { "name": "決まったリズム", "desc": "毎秒ハッピー +15%、クリック力 +10%。" }
+      "claw_training": {
+        "name": "肉球トレーニング",
+        "desc": "クリック力が 50% 上昇します。"
+      },
+      "sharp_reflex": {
+        "name": "鋭い反射神経",
+        "desc": "クリティカル率が +10% されます。"
+      },
+      "perfect_pounce": {
+        "name": "完璧な跳躍",
+        "desc": "クリティカル倍率が 25% 上昇します。"
+      },
+      "cozy_blanket": {
+        "name": "ぬくぬく毛布",
+        "desc": "毎秒ハッピーが 25% 増加します。"
+      },
+      "long_play": {
+        "name": "あそびたい盛り",
+        "desc": "スキル効果時間が +3 秒延長されます。"
+      },
+      "focused_spirit": {
+        "name": "集中する瞳",
+        "desc": "スキルクールダウンが 20% 短縮されます。"
+      },
+      "lucky_cache": {
+        "name": "幸運の隠し場所",
+        "desc": "大量のハッピーを即時で獲得します。"
+      },
+      "boss_instinct": {
+        "name": "ボスの弱点",
+        "desc": "ボス戦のクリック力が 30% 上昇します。"
+      },
+      "shoployalty": {
+        "name": "常連割引",
+        "desc": "ショップの価格が 10% 割引になります。"
+      },
+      "fast_paws": {
+        "name": "俊敏な手つき",
+        "desc": "クリック力が 20% 上昇します。"
+      },
+      "steady_rhythm": {
+        "name": "決まったリズム",
+        "desc": "毎秒ハッピー +15%、クリック力 +10%。"
+      }
     }
   },
   "summary": {

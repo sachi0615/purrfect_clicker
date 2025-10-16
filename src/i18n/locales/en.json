@@ -38,6 +38,64 @@
     "comboHint": "You can also press Space to pet.",
     "floatingCrit": "Critical!"
   },
+  "skill": {
+    "bar": {
+      "title": "Skills",
+      "helper": "Press Q/W/E/R or tap on mobile.",
+      "activeList": "Active ({{count}}): {{names}}",
+      "nameSeparator": ", ",
+      "aria": "{{name}}: {{status}}",
+      "ariaWithHotkey": "{{name}}: {{status}} ({{hotkey}})"
+    },
+    "ready": "Ready",
+    "active": "Active",
+    "cooldown": "Cooldown",
+    "tooltip": {
+      "status": "Status",
+      "duration": "Duration",
+      "cooldown": "Cooldown",
+      "hotkey": "Hotkey",
+      "effects": "Effects",
+      "secondsSuffix": "s",
+      "adjustment": {
+        "label": "Adjust",
+        "meta": "Meta",
+        "run": "Cards",
+        "none": "No change"
+      }
+    },
+    "effect": {
+      "clickMult": "Click ×{{value}}",
+      "ppsMult": "PPS ×{{value}}",
+      "critChancePlus": "Crit chance +{{value}}%",
+      "critMultPlus": "Crit multiplier +{{value}}",
+      "tickRateMult": "Tick speed ×{{value}}"
+    },
+    "toast": {
+      "activated": "Activated {{name}}!",
+      "expired": "{{name}} ended."
+    },
+    "cheerful": {
+      "name": "Cheerful",
+      "desc": "PPS +75% for 10s"
+    },
+    "critBoost": {
+      "name": "Nyan-Crit",
+      "desc": "Crit chance +20% / crit mult +0.5 for 12s"
+    },
+    "clickRush": {
+      "name": "Rush",
+      "desc": "Click multiplier ×1.6 for 8s"
+    },
+    "overdrive": {
+      "name": "Overdrive",
+      "desc": "PPS and click ×1.3 for 10s"
+    },
+    "timeWarp": {
+      "name": "Time Warp",
+      "desc": "Faster tick for 6s (advanced)"
+    }
+  },
   "stage": {
     "goalTitle": "Stage Goal",
     "goalHint": "Reach the target Happy to choose a reward card.",
@@ -64,10 +122,22 @@
     "discount": "Discount active",
     "helper": "Shop upgrades reset when the run ends.",
     "items": {
-      "soft_brush": { "name": "Soft Brush", "desc": "Increase click power by +0.5." },
-      "treat_dispenser": { "name": "Treat Dispenser", "desc": "Increase passive income by +0.4." },
-      "tower_upgrade": { "name": "Tower Upgrade", "desc": "Increase click power by +1.2." },
-      "auto_cleaner": { "name": "Auto Cleaner", "desc": "Increase passive income by +2.5." }
+      "soft_brush": {
+        "name": "Soft Brush",
+        "desc": "Increase click power by +0.5."
+      },
+      "treat_dispenser": {
+        "name": "Treat Dispenser",
+        "desc": "Increase passive income by +0.4."
+      },
+      "tower_upgrade": {
+        "name": "Tower Upgrade",
+        "desc": "Increase click power by +1.2."
+      },
+      "auto_cleaner": {
+        "name": "Auto Cleaner",
+        "desc": "Increase passive income by +2.5."
+      }
     }
   },
   "boss": {
@@ -90,17 +160,50 @@
     "button": "Take this card",
     "toast": "Picked {{card}}!",
     "cards": {
-      "claw_training": { "name": "Claw Training", "desc": "Increase click power by 50%." },
-      "sharp_reflex": { "name": "Sharp Reflex", "desc": "Add +10% critical chance." },
-      "perfect_pounce": { "name": "Perfect Pounce", "desc": "Boost critical multiplier by 25%." },
-      "cozy_blanket": { "name": "Cozy Blanket", "desc": "Increase passive income by 25%." },
-      "long_play": { "name": "Long Play Session", "desc": "Extend skill duration by +3 seconds." },
-      "focused_spirit": { "name": "Focused Spirit", "desc": "Reduce skill cooldown by 20%." },
-      "lucky_cache": { "name": "Lucky Cache", "desc": "Gain a burst of Happy immediately." },
-      "boss_instinct": { "name": "Boss Instinct", "desc": "Clicks deal 30% more damage during boss fights." },
-      "shoployalty": { "name": "Shop Loyalty", "desc": "All shop prices are reduced by 10%." },
-      "fast_paws": { "name": "Fast Paws", "desc": "Increase click power by 20%." },
-      "steady_rhythm": { "name": "Steady Rhythm", "desc": "Passive income +15% and click power +10%." }
+      "claw_training": {
+        "name": "Claw Training",
+        "desc": "Increase click power by 50%."
+      },
+      "sharp_reflex": {
+        "name": "Sharp Reflex",
+        "desc": "Add +10% critical chance."
+      },
+      "perfect_pounce": {
+        "name": "Perfect Pounce",
+        "desc": "Boost critical multiplier by 25%."
+      },
+      "cozy_blanket": {
+        "name": "Cozy Blanket",
+        "desc": "Increase passive income by 25%."
+      },
+      "long_play": {
+        "name": "Long Play Session",
+        "desc": "Extend skill duration by +3 seconds."
+      },
+      "focused_spirit": {
+        "name": "Focused Spirit",
+        "desc": "Reduce skill cooldown by 20%."
+      },
+      "lucky_cache": {
+        "name": "Lucky Cache",
+        "desc": "Gain a burst of Happy immediately."
+      },
+      "boss_instinct": {
+        "name": "Boss Instinct",
+        "desc": "Clicks deal 30% more damage during boss fights."
+      },
+      "shoployalty": {
+        "name": "Shop Loyalty",
+        "desc": "All shop prices are reduced by 10%."
+      },
+      "fast_paws": {
+        "name": "Fast Paws",
+        "desc": "Increase click power by 20%."
+      },
+      "steady_rhythm": {
+        "name": "Steady Rhythm",
+        "desc": "Passive income +15% and click power +10%."
+      }
     }
   },
   "summary": {

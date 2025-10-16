@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 import { fmt } from '../lib/format';
 import { Progress } from './Progress';
 import { useRunStore } from '../store/run';
+import { getSkillAggregates, useSkillsStore } from '../store/skills';
 
 export function BossModal() {
   const { t } = useTranslation();
@@ -11,6 +13,12 @@ export function BossModal() {
   const run = useRunStore((state) => state.run);
   const hitBoss = useRunStore((state) => state.hitBoss);
   const closeBoss = useRunStore((state) => state.closeBoss);
+  const skillRuntime = useSkillsStore((state) => state.rt);
+  const skillSpecs = useSkillsStore((state) => state.specs);
+  const skillAggregates = useMemo(
+    () => getSkillAggregates(),
+    [skillRuntime, skillSpecs],
+  );
 
   if (!bossOpen || !run) {
     return null;
@@ -61,7 +69,8 @@ export function BossModal() {
           <Progress value={boss.hp} max={boss.maxHp} />
           <div className="flex items-center justify-between rounded-2xl border border-plum-100 bg-white/70 px-4 py-2 text-sm text-plum-600 shadow-sm md:text-base">
             <span>
-              {t('boss.clickPower')}: {fmt(run.clickPower * (run.tempMods.clickMult ?? 1))}
+              {t('boss.clickPower')}:{' '}
+              {fmt(run.clickPower * (run.tempMods.clickMult ?? 1) * skillAggregates.clickMult)}
             </span>
             <span>
               {t('boss.reward')}: {fmt(boss.rewardHappy)}

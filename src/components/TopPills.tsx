@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { Cat as CatIcon, Coins, Gauge, Hand, Hash, Map } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { fmt } from '../lib/format';
 import { cn } from '../lib/utils';
 import { useRunStore } from '../store/run';
+import { getSkillAggregates, useSkillsStore } from '../store/skills';
 
 const PILL_META = [
   { key: 'happy', icon: Coins },
@@ -17,6 +19,12 @@ const PILL_META = [
 export function TopPills() {
   const { t } = useTranslation();
   const run = useRunStore((state) => state.run);
+  const skillRuntime = useSkillsStore((state) => state.rt);
+  const skillSpecs = useSkillsStore((state) => state.specs);
+  const skillAggregates = useMemo(
+    () => getSkillAggregates(),
+    [skillRuntime, skillSpecs],
+  );
   if (!run) {
     return null;
   }
@@ -24,8 +32,10 @@ export function TopPills() {
   const currentStage = Math.min(run.stageIndex + 1, run.stages.length);
   const display: Record<string, string> = {
     happy: fmt(run.happy),
-    clickPower: fmt(run.clickPower * (run.tempMods.clickMult ?? 1)),
-    pps: fmt(run.pps * (run.tempMods.ppsMult ?? 1)),
+    clickPower: fmt(
+      run.clickPower * (run.tempMods.clickMult ?? 1) * skillAggregates.clickMult,
+    ),
+    pps: fmt(run.pps * (run.tempMods.ppsMult ?? 1) * skillAggregates.ppsMult),
     totalPets: fmt(run.totalPets),
     stage: `${currentStage}/${run.stages.length}`,
     seed: String(run.seed),

@@ -9,6 +9,11 @@ import { getRewardCard } from '../data/cards';
 import { generateStages } from '../data/stages';
 import { getShopItem } from '../data/shopItems';
 import { useMetaStore } from './meta';
+import {
+  getSkillAggregates,
+  syncSkillRunModifiers,
+  useSkillsStore,
+} from './skills';
 import type {
   FloatingText,
   RewardCardId,
@@ -74,13 +79,20 @@ export const useRunStore = create<RunStore>()(
           floatingTexts: [],
           shopLevels: {},
         });
+        useSkillsStore.getState().resetAll();
+        syncSkillRunModifiers(run.tempMods);
       },
       tick: (dt) => {
         const state = get();
         if (!state.run || !state.run.alive || state.showSummary) {
           return;
         }
-        const gain = state.run.pps * (state.run.tempMods.ppsMult ?? 1) * dt;
+        const now = Date.now();
+        useSkillsStore.getState().tick(now);
+        const aggregates = getSkillAggregates(now);
+        const ppsMult = (state.run.tempMods.ppsMult ?? 1) * aggregates.ppsMult;
+        const effectiveDt = dt * aggregates.tickRateFactor;
+        const gain = state.run.pps * ppsMult * effectiveDt;
         set((current) => {
           if (!current.run) {
             return current;
@@ -103,7 +115,9 @@ export const useRunStore = create<RunStore>()(
         if (!state.run || !state.run.alive || state.showSummary) {
           return 0;
         }
-        const outcome = computeClickOutcome(state.run, { boss: false });
+        const now = Date.now();
+        useSkillsStore.getState().tick(now);
+        const outcome = computeClickOutcome(state.run, { boss: false }, now);
         set((current) => {
           if (!current.run) {
             return current;
@@ -168,6 +182,9 @@ export const useRunStore = create<RunStore>()(
           };
         });
 
+        const updatedRun = get().run;
+        syncSkillRunModifiers(updatedRun?.tempMods);
+
         advanceStage();
         if (bonusHappy > 0) {
           // Ensure stage completion after bonus gain.
@@ -195,7 +212,9 @@ export const useRunStore = create<RunStore>()(
           return 0;
         }
 
-        const outcome = computeClickOutcome(state.run, { boss: true });
+        const now = Date.now();
+        useSkillsStore.getState().tick(now);
+        const outcome = computeClickOutcome(state.run, { boss: true }, now);
         let defeated = false;
         set((current) => {
           if (!current.run) {
@@ -286,6 +305,9 @@ export const useRunStore = create<RunStore>()(
           rewardChoices: [],
           rewardStageIndex: null,
         }));
+
+        useSkillsStore.getState().resetAll();
+        syncSkillRunModifiers(undefined);
 
         const rewardSouls = Math.max(1, stagesCleared);
         useMetaStore.getState().addSouls(rewardSouls);
@@ -387,6 +409,7 @@ export const useRunStore = create<RunStore>()(
         }
         state.bossOpen = false;
         state.floatingTexts = [];
+        syncSkillRunModifiers(state.run?.tempMods);
       },
     },
   ),
@@ -412,17 +435,19 @@ function createRun(seed: number): RunState {
 function computeClickOutcome(
   run: RunState,
   options: { boss: boolean },
+  timestamp = Date.now(),
 ): { gain: number; crit: boolean } {
+  const aggregates = getSkillAggregates(timestamp);
   const base = run.clickPower;
-  const clickMult = run.tempMods.clickMult ?? 1;
+  const clickMult = (run.tempMods.clickMult ?? 1) * aggregates.clickMult;
   let gain = base * clickMult;
 
   if (options.boss) {
     gain *= run.tempMods.bossClickMult ?? 1;
   }
 
-  const critChance = clamp01(run.tempMods.critChance ?? 0);
-  const critMult = run.tempMods.critMult ?? 2;
+  const critChance = clamp01((run.tempMods.critChance ?? 0) + aggregates.critChancePlus);
+  const critMult = Math.max(1, (run.tempMods.critMult ?? 2) + aggregates.critMultPlus);
   const crit = Math.random() < critChance;
   if (crit) {
     gain *= critMult;
