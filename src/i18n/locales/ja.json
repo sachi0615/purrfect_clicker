@@ -27,8 +27,8 @@
   },
   "pills": {
     "happy": "ハッピー",
-    "clickPower": "クリック力",
-    "pps": "毎秒",
+    "clickPower": "なで力",
+    "pps": "HPS",
     "totalPets": "なで回数",
     "stage": "ステージ",
     "seed": "シード"
