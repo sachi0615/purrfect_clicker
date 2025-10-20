@@ -294,8 +294,30 @@
     "runId": "Run ID"
   },
   "meta": {
-    "title": "Meta Progress (Work in Progress)",
-    "helper": "Cat souls carry between runs. Permanent upgrades are coming soon."
+    "title": "Meta Progress",
+    "helper": "Spend cat souls on permanent upgrades to power up future runs.",
+    "upgrades": {
+      "skillDuration": {
+        "name": "Stretch Time",
+        "desc": "+{{perLevel}}s skill duration per level (current: +{{current}}s → next: +{{next}}s)"
+      },
+      "skillCooldown": {
+        "name": "Quick Recovery",
+        "desc": "-{{perLevel}}% skill cooldown per level (current: -{{current}}% → next: -{{next}}%)"
+      },
+      "skillCheerful": {
+        "name": "Cheerful Boost",
+        "desc": "+{{perLevel}}% Cheerful PPS bonus per level (current: +{{current}}% → next: +{{next}}%)"
+      },
+      "levelCapped": "Level {{level}} / {{max}}",
+      "levelInfinite": "Level {{level}}",
+      "buy": "Buy ({{cost}})",
+      "cost": "Cost: {{value}} Souls",
+      "maxed": "Maxed"
+    },
+    "toast": {
+      "purchased": "Bought {{name}}!"
+    }
   },
   "toast": {
     "saved": "Progress saved!",

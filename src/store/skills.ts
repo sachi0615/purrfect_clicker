@@ -4,6 +4,12 @@ import { persist } from 'zustand/middleware';
 import type { MetaProgress, TempMods } from './types';
 import { useMetaStore } from './meta';
 import { getCharacterActiveOverrides, getCharacterPassiveMods, getCharacterUniqueSkills, useCharsStore } from './chars';
+import {
+  CHEERFUL_META_PPS_PER_LEVEL,
+  META_CD_FLOOR,
+  META_COOLDOWN_REDUCTION_PER_LEVEL,
+  META_DURATION_PER_LEVEL,
+} from '../data/metaUpgrades';
 
 export type SkillId =
   | 'cheerful'
@@ -75,11 +81,6 @@ type BaseSkillSpec = SkillSpec;
 
 const SKILL_STORAGE_KEY = 'purrfect-skills';
 
-const META_DURATION_PER_LEVEL = 1; // +1 second per meta duration level
-const META_CD_REDUCE_PER_LEVEL = 0.05; // -5% cooldown per level
-const META_CD_FLOOR = 0.3; // cooldown cannot drop below 30% of base
-const CHEERFUL_META_HPS_BONUS_PER_LEVEL = 0.05;
-
 const BASE_SKILL_IDS: SkillId[] = [
   'cheerful',
   'critBoost',
@@ -102,7 +103,7 @@ const BASE_SPECS: Partial<Record<SkillId, BaseSkillSpec>> = {
     applyMeta: (meta) => {
       const level = meta.permanentUpgrades['skill.cheerful.ppsBonus'] ?? 0;
       if (level > 0) {
-        const bonus = 1.75 + level * CHEERFUL_META_HPS_BONUS_PER_LEVEL;
+        const bonus = 1.75 + level * CHEERFUL_META_PPS_PER_LEVEL;
         return {
           effect: {
             ppsMult: bonus,
@@ -173,7 +174,7 @@ function computeSpecs(
   const durationLevel = meta.permanentUpgrades['skill.durationPlus'] ?? 0;
   const cdLevel = meta.permanentUpgrades['skill.cdReduce'] ?? 0;
   const durationBonus = durationLevel * META_DURATION_PER_LEVEL;
-  const cdFactor = clamp(1 - cdLevel * META_CD_REDUCE_PER_LEVEL, META_CD_FLOOR, 2);
+  const cdFactor = clamp(1 - cdLevel * META_COOLDOWN_REDUCTION_PER_LEVEL, META_CD_FLOOR, 2);
 
   const overrides = getCharacterActiveOverrides(characterId);
   const uniqueSkills = getCharacterUniqueSkills(characterId);

@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Purrfect Clicker",
     "subtitle": "終わりなき癒やしのローグライク"
@@ -294,8 +294,30 @@
     "runId": "ランID"
   },
   "meta": {
-    "title": "メタ進行（開発中）",
-    "helper": "猫魂はランをまたいで引き継がれます。恒久アップグレードも追加予定です。"
+    "title": "メタ進行度",
+    "helper": "集めたキャットソウルで恒久アップグレードを購入しましょう。",
+    "upgrades": {
+      "skillDuration": {
+        "name": "時間を引き延ばす",
+        "desc": "レベルごとにスキル持続時間が +{{perLevel}} 秒（現在: +{{current}} 秒 → 次: +{{next}} 秒）"
+      },
+      "skillCooldown": {
+        "name": "クールリチャージ",
+        "desc": "レベルごとにスキル再使用時間を -{{perLevel}}% （現在: -{{current}}% → 次: -{{next}}%）"
+      },
+      "skillCheerful": {
+        "name": "ごきげんブースト",
+        "desc": "「ごきげん」スキルのPPSボーナスがレベルごとに +{{perLevel}}% （現在: +{{current}}% → 次: +{{next}}%）"
+      },
+      "levelCapped": "レベル {{level}} / {{max}}",
+      "levelInfinite": "レベル {{level}}",
+      "buy": "購入 ({{cost}})",
+      "cost": "コスト: {{value}} ソウル",
+      "maxed": "最大レベル"
+    },
+    "toast": {
+      "purchased": "{{name}} を購入しました！"
+    }
   },
   "toast": {
     "saved": "セーブしました！",
