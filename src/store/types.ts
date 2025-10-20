@@ -33,6 +33,8 @@ export type Stage = {
   goalHappy?: number;
   boss?: Enemy;
   rewardPool: RewardCardId[];
+  loop: number;
+  order: number;
 };
 
 type CharacterId = import('./chars').CharacterId;
