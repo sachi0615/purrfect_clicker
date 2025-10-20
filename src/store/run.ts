@@ -49,7 +49,7 @@ type RunStore = {
 
 const FLOATING_TEXT_MAX = 8;
 const DEFAULT_CLICK = 1;
-const DEFAULT_PPS = 0;
+const DEFAULT_HPS = 0;
 
 export const useRunStore = create<RunStore>()(
   persist(
@@ -94,12 +94,13 @@ export const useRunStore = create<RunStore>()(
         const effectiveDt = dt * aggregates.tickRateFactor;
         const gain = state.run.pps * ppsMult * effectiveDt;
         set((current) => {
-          if (!current.run) {
+          const existingRun = current.run;
+          if (!existingRun) {
             return current;
           }
           const run: RunState = {
-            ...current.run,
-            happy: current.run.happy + gain,
+            ...existingRun,
+            happy: existingRun.happy + gain,
           };
           const floatingTexts = decayFloatingTexts(current.floatingTexts, dt);
           return {
@@ -119,7 +120,8 @@ export const useRunStore = create<RunStore>()(
         useSkillsStore.getState().tick(now);
         const outcome = computeClickOutcome(state.run, { boss: false }, now);
         set((current) => {
-          if (!current.run) {
+          const existingRun = current.run;
+          if (!existingRun) {
             return current;
           }
           const floatingTexts = appendFloatingText(
@@ -130,9 +132,9 @@ export const useRunStore = create<RunStore>()(
           return {
             ...current,
             run: {
-              ...current.run,
-              happy: current.run.happy + outcome.gain,
-              totalPets: current.run.totalPets + 1,
+              ...existingRun,
+              happy: existingRun.happy + outcome.gain,
+              totalPets: existingRun.totalPets + 1,
             },
             floatingTexts,
           };
@@ -153,17 +155,18 @@ export const useRunStore = create<RunStore>()(
         let bonusHappy = 0;
 
         set((current) => {
-          if (!current.run) {
+          const existingRun = current.run;
+          if (!existingRun) {
             return current;
           }
           const run: RunState = {
-            ...current.run,
-            tempMods: card.apply({ ...current.run.tempMods }),
+            ...existingRun,
+            tempMods: card.apply({ ...existingRun.tempMods }),
           };
 
           if (card.id === 'lucky_cache') {
-            const stage = current.run.stageIndex < current.run.stages.length
-              ? current.run.stages[current.run.stageIndex]
+            const stage = existingRun.stageIndex < existingRun.stages.length
+              ? existingRun.stages[existingRun.stageIndex]
               : null;
             const basis =
               stage?.goalHappy ??
@@ -217,10 +220,11 @@ export const useRunStore = create<RunStore>()(
         const outcome = computeClickOutcome(state.run, { boss: true }, now);
         let defeated = false;
         set((current) => {
-          if (!current.run) {
+          const existingRun = current.run;
+          if (!existingRun) {
             return current;
           }
-          const activeStage = current.run.stages[current.run.stageIndex];
+          const activeStage = existingRun.stages[existingRun.stageIndex];
           if (!activeStage || activeStage.kind !== 'boss' || !activeStage.boss) {
             return current;
           }
@@ -233,8 +237,8 @@ export const useRunStore = create<RunStore>()(
             ...activeStage.boss,
             hp: bossAfter,
           };
-          const stages: Stage[] = current.run.stages.map((s, index) =>
-            index === current.run.stageIndex
+          const stages: Stage[] = existingRun.stages.map((s, index) =>
+            index === existingRun.stageIndex
               ? { ...s, boss: updatedBoss }
               : s,
           );
@@ -248,13 +252,13 @@ export const useRunStore = create<RunStore>()(
           return {
             ...current,
             run: {
-              ...current.run,
+              ...existingRun,
               stages,
               happy:
-                current.run.happy +
+                existingRun.happy +
                 outcome.gain +
                 (defeated ? activeStage.boss.rewardHappy : 0),
-              totalPets: current.run.totalPets + 1,
+              totalPets: existingRun.totalPets + 1,
             },
             floatingTexts,
           };
@@ -326,7 +330,8 @@ export const useRunStore = create<RunStore>()(
         }
 
         set((current) => {
-          if (!current.run) {
+          const existingRun = current.run;
+          if (!existingRun) {
             return current;
           }
           const updatedLevels = {
@@ -334,16 +339,16 @@ export const useRunStore = create<RunStore>()(
             [itemId]: level + 1,
           };
           const run: RunState = {
-            ...current.run,
-            happy: current.run.happy - price,
+            ...existingRun,
+            happy: existingRun.happy - price,
             clickPower:
               item.type === 'click'
-                ? current.run.clickPower + item.gain
-                : current.run.clickPower,
+                ? existingRun.clickPower + item.gain
+                : existingRun.clickPower,
             pps:
               item.type === 'pps'
-                ? current.run.pps + item.gain
-                : current.run.pps,
+                ? existingRun.pps + item.gain
+                : existingRun.pps,
           };
           return {
             ...current,
@@ -421,11 +426,11 @@ function createRun(seed: number): RunState {
     seed,
     startedAt: Date.now(),
     stageIndex: 0,
-    stages: generateStages(seed, DEFAULT_CLICK, DEFAULT_PPS),
+    stages: generateStages(seed, DEFAULT_CLICK, DEFAULT_HPS),
     happy: 0,
     totalPets: 0,
     clickPower: DEFAULT_CLICK,
-    pps: DEFAULT_PPS,
+    pps: DEFAULT_HPS,
     tempMods: {},
     alive: true,
     cleared: false,

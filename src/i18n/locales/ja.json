@@ -66,7 +66,7 @@
     },
     "effect": {
       "clickMult": "クリック倍率 ×{{value}}",
-      "ppsMult": "PPS ×{{value}}",
+      "ppsMult": "HPS ×{{value}}",
       "critChancePlus": "クリティカル率 +{{value}}%",
       "critMultPlus": "クリティカル倍率 +{{value}}",
       "tickRateMult": "tick速度 ×{{value}}"
@@ -77,7 +77,7 @@
     },
     "cheerful": {
       "name": "ごきげん",
-      "desc": "10秒間 PPS +75%"
+      "desc": "10秒間 HPS +75%"
     },
     "critBoost": {
       "name": "にゃんクリ",
@@ -89,7 +89,7 @@
     },
     "overdrive": {
       "name": "オーバードライブ",
-      "desc": "10秒間 PPSとクリック倍率 ×1.3"
+      "desc": "10秒間 HPSとクリック倍率 ×1.3"
     },
     "timeWarp": {
       "name": "タイムワープ",
@@ -124,7 +124,7 @@
     "items": {
       "soft_brush": {
         "name": "やわらかブラシ",
-        "desc": "クリック力が +0.5 上昇します。"
+        "desc": "なで力が +0.5 上昇します。"
       },
       "treat_dispenser": {
         "name": "おやつディスペンサー",
@@ -132,7 +132,7 @@
       },
       "tower_upgrade": {
         "name": "タワー強化",
-        "desc": "クリック力が +1.2 上昇します。"
+        "desc": "なで力が +1.2 上昇します。"
       },
       "auto_cleaner": {
         "name": "自動お掃除ロボ",
@@ -145,7 +145,7 @@
     "instruction": "ボスのHPを削り切りましょう。",
     "hp": "HP",
     "reward": "報酬",
-    "clickPower": "クリック力",
+    "clickPower": "なで力",
     "enemies": {
       "forest_guardian": "森の番猫",
       "clockwork_cat": "歯車キャット",
@@ -162,7 +162,7 @@
     "cards": {
       "claw_training": {
         "name": "肉球トレーニング",
-        "desc": "クリック力が 50% 上昇します。"
+        "desc": "なで力が 50% 上昇します。"
       },
       "sharp_reflex": {
         "name": "鋭い反射神経",
@@ -190,7 +190,7 @@
       },
       "boss_instinct": {
         "name": "ボスの弱点",
-        "desc": "ボス戦のクリック力が 30% 上昇します。"
+        "desc": "ボス戦のなで力が 30% 上昇します。"
       },
       "shoployalty": {
         "name": "常連割引",
@@ -198,11 +198,11 @@
       },
       "fast_paws": {
         "name": "俊敏な手つき",
-        "desc": "クリック力が 20% 上昇します。"
+        "desc": "なで力が 20% 上昇します。"
       },
       "steady_rhythm": {
         "name": "決まったリズム",
-        "desc": "毎秒ハッピー +15%、クリック力 +10%。"
+        "desc": "毎秒ハッピー +15%、なで力 +10%。"
       }
     }
   },

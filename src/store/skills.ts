@@ -69,7 +69,7 @@ const SKILL_STORAGE_KEY = 'purrfect-skills';
 const META_DURATION_PER_LEVEL = 1; // +1 second per meta duration level
 const META_CD_REDUCE_PER_LEVEL = 0.05; // -5% cooldown per level
 const META_CD_FLOOR = 0.3; // cooldown cannot drop below 30% of base
-const CHEERFUL_META_PPS_BONUS_PER_LEVEL = 0.05;
+const CHEERFUL_META_HPS_BONUS_PER_LEVEL = 0.05;
 
 const SKILL_IDS: SkillId[] = [
   'cheerful',
@@ -93,7 +93,7 @@ const BASE_SPECS: Record<SkillId, BaseSkillSpec> = {
     applyMeta: (meta) => {
       const level = meta.permanentUpgrades['skill.cheerful.ppsBonus'] ?? 0;
       if (level > 0) {
-        const bonus = 1.75 + level * CHEERFUL_META_PPS_BONUS_PER_LEVEL;
+        const bonus = 1.75 + level * CHEERFUL_META_HPS_BONUS_PER_LEVEL;
         return {
           effect: {
             ppsMult: bonus,
@@ -217,7 +217,7 @@ function extractRuntimeModifiers(tempMods?: TempMods | null): SkillRuntimeModifi
   };
 }
 
-const createSkillsStore = persist<SkillsState>(
+const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
   (set, get) => {
     const meta = useMetaStore.getState().meta;
     return {
@@ -325,16 +325,10 @@ const createSkillsStore = persist<SkillsState>(
         });
       },
       resetAll: () => {
-        set((current) => ({
-          ...current,
-          rt: ensureRuntime(),
-        }));
+        set({ rt: ensureRuntime() });
       },
       setRunModifiers: (mods) => {
-        set((current) => ({
-          ...current,
-          runModifiers: mods,
-        }));
+        set({ runModifiers: mods });
       },
     };
   },
@@ -358,17 +352,17 @@ const createSkillsStore = persist<SkillsState>(
   },
 );
 
-export const useSkillsStore = create<SkillsState>(createSkillsStore);
+export const useSkillsStore = create<SkillsState>()(createSkillsStore);
 
-useMetaStore.subscribe(
-  (state) => state.meta,
-  (meta) => {
-    useSkillsStore.setState((current) => ({
-      ...current,
-      specs: computeSpecs(meta),
-    }));
-  },
-);
+useMetaStore.subscribe((state, prevState) => {
+  if (state.meta === prevState.meta) {
+    return;
+  }
+  useSkillsStore.setState((current) => ({
+    ...current,
+    specs: computeSpecs(state.meta),
+  }));
+});
 
 export function syncSkillRunModifiers(tempMods?: TempMods | null) {
   const mods = extractRuntimeModifiers(tempMods);

@@ -82,6 +82,6 @@ export interface GameStore extends GameState {
   save: (manual?: boolean) => void;
   reset: () => void;
   activateSkill: () => void;
-  recalcPPS: () => void;
+  recalcHPS: () => void;
   checkAchievements: () => void;
 }

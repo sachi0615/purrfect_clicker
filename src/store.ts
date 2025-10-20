@@ -360,8 +360,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       };
     });
 
-    const { recalcPPS, checkAchievements } = get();
-    recalcPPS();
+    const { recalcHPS, checkAchievements } = get();
+    recalcHPS();
     checkAchievements();
   },
 
@@ -420,6 +420,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
+  recalcHPS: () => {
+    set((state) => {
+      const total = SHOP.reduce((sum, item) => {
+        if (item.type !== 'pps') {
+          return sum;
+        }
+        const owned = state.upgrades[item.id] ?? 0;
+        return sum + item.gain * owned;
+      }, 0);
+
+      return {
+        ...state,
+        pps: total,
+      };
+    });
+  },
+
+  // Backwards-compatible alias expected by the GameStore type.
   recalcPPS: () => {
     set((state) => {
       const total = SHOP.reduce((sum, item) => {
@@ -471,5 +489,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 }));
 
-useGameStore.getState().recalcPPS();
+useGameStore.getState().recalcHPS();
 useGameStore.getState().checkAchievements();

@@ -17,7 +17,7 @@ export const SHOP: Upgrade[] = [
   {
     id: 'warm_milk',
     name: 'あったかミルク',
-    description: '毎秒のハッピーがゆっくり増えます。',
+    description: '毎秒ハッピーがゆっくり増えます。',
     type: 'pps',
     basePrice: 30,
     gain: 0.4,
@@ -33,7 +33,7 @@ export const SHOP: Upgrade[] = [
   {
     id: 'knit_blanket',
     name: '編み込み毛布',
-    description: 'PPS がしっかり上昇します。',
+    description: 'HPS がしっかり上昇します。',
     type: 'pps',
     basePrice: 260,
     gain: 1.2,
@@ -49,14 +49,14 @@ export const SHOP: Upgrade[] = [
   {
     id: 'sunny_window',
     name: '陽だまりの窓辺',
-    description: 'PPS がぐっと増えます。',
+    description: 'HPS がぐっと増えます。',
     type: 'pps',
     basePrice: 3200,
     gain: 6,
   },
   {
     id: 'starlight_gloves',
-    name: '星明かりの手袋',
+    name: '星あかりの手袋',
     description: 'なで力がとても上がります。',
     type: 'click',
     basePrice: 15000,
@@ -64,8 +64,8 @@ export const SHOP: Upgrade[] = [
   },
   {
     id: 'dream_machine',
-    name: '夢見マシン',
-    description: 'PPS が爆発的に増えます。',
+    name: '夢見るマシン',
+    description: 'HPS が爆発的に増えます。',
     type: 'pps',
     basePrice: 55000,
     gain: 30,
