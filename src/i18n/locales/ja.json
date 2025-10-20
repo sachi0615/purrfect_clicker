@@ -1,7 +1,7 @@
 ﻿{
   "app": {
     "title": "Purrfect Clicker",
-    "subtitle": "なでて育てるローグライク・ラン"
+    "subtitle": "終わりなき癒やしのローグライク"
   },
   "nav": {
     "language": "言語",
@@ -17,13 +17,99 @@
     "save": "セーブ",
     "reset": "転生する",
     "boss": "ボス戦を開始",
-    "attack": "攻撃！",
+    "attack": "アタック！",
     "close": "閉じる",
     "continue": "続ける",
-    "restart": "もう一度挑戦",
+    "restart": "新しく始める",
     "confirm": "確認",
     "cancel": "キャンセル",
     "buy": "購入する"
+  },
+  "char": {
+    "select": {
+      "title": "キャラクターを選択",
+      "helper": "お気に入りの猫を選んでランを始めましょう。",
+      "keyboardHint": "矢印キーで移動、Enterで決定、Escで閉じる。",
+      "prompt": "切り替えはラン開始前のみ可能です。"
+    },
+    "start": "このキャラで開始",
+    "selected": "選択中",
+    "passives": "パッシブ",
+    "uniqueSkill": "専用スキル",
+    "changeDisabled": "ラン進行中はキャラクターを変更できません。",
+    "badge": {
+      "select": "キャラ選択",
+      "helper": "クリックしてキャラを選択",
+      "change": "{{name}}の詳細を見る",
+      "viewOnly": "ラン中は閲覧のみ"
+    },
+    "difficulty": {
+      "easy": "やさしい",
+      "normal": "ふつう",
+      "hard": "むずかしい"
+    },
+    "critCat": {
+      "name": "クリティ猫",
+      "desc": "クリティカルで一撃必殺。手数よりも質で押すタイプ。"
+    },
+    "tempoCat": {
+      "name": "テンポ猫",
+      "desc": "スキル回転率で押し切る。短期決戦が得意。"
+    },
+    "summonerCat": {
+      "name": "サモナー猫",
+      "desc": "使い魔の支援でHPSと継続火力を積む持久型。"
+    },
+    "guardianCat": {
+      "name": "ガーディアン猫",
+      "desc": "デバフに強く安定志向。長期戦で真価を発揮。"
+    },
+    "gamblerCat": {
+      "name": "ギャンブラー猫",
+      "desc": "大当たり狙いの博打型。ハイリスク・ハイリターン。"
+    },
+    "passive": {
+      "critEngine": {
+        "name": "クリエンジン",
+        "desc": "常時 クリ率+10%、クリ倍率+0.3。"
+      },
+      "precisionPaws": {
+        "name": "精密タッチ",
+        "desc": "常時 クリック倍率+10%。"
+      },
+      "quickReflex": {
+        "name": "クイックリフレックス",
+        "desc": "全スキルのクールダウンを15%短縮。"
+      },
+      "extendedPlay": {
+        "name": "延長セッション",
+        "desc": "全スキルの持続時間+2秒。"
+      },
+      "tinyHelpers": {
+        "name": "ちび召喚",
+        "desc": "HPS+20%。時折追加ダメージが発生する。"
+      },
+      "emberClaws": {
+        "name": "エンバークロウ",
+        "desc": "クリック火力がわずかに上がり、継続ダメージを狙いやすくなる。"
+      },
+      "ironWhisker": {
+        "name": "鉄のヒゲ",
+        "desc": "受けるデバフ効果を20%軽減。"
+      },
+      "steadyPurr": {
+        "name": "安らぎのゴロゴロ",
+        "desc": "HPS+10%。安定して稼げる。"
+      },
+      "luckySeven": {
+        "name": "ラッキーセブン",
+        "desc": "クリ率+5%。非クリティカル時のダメージは少し減少。"
+      },
+      "jackpot": {
+        "name": "ジャックポット",
+        "desc": "クリティカル発生時に追加でハッピーを獲得。"
+      }
+    }
   },
   "pills": {
     "happy": "ハッピー",
@@ -34,7 +120,7 @@
     "seed": "シード"
   },
   "clickPad": {
-    "hint": "クリックしてハッピーを集め、ステージを進めましょう。",
+    "hint": "クリックしてハッピーを稼ぎ、ステージ目標を達成しましょう。",
     "comboHint": "スペースキーでもなでられます。",
     "floatingCrit": "クリティカル！"
   },
@@ -42,14 +128,14 @@
     "bar": {
       "title": "スキル",
       "helper": "Q/W/E/Rキーで発動。モバイルはタップ。",
-      "activeList": "同時発動中（{{count}}）: {{names}}",
-      "nameSeparator": "、 ",
+      "activeList": "発動中 ({{count}}): {{names}}",
+      "nameSeparator": "、",
       "aria": "{{name}}: {{status}}",
-      "ariaWithHotkey": "{{name}}: {{status}}（{{hotkey}}キー）"
+      "ariaWithHotkey": "{{name}}: {{status}} ({{hotkey}})"
     },
-    "ready": "使用可能",
+    "ready": "使用可",
     "active": "発動中",
-    "cooldown": "クールダウン中",
+    "cooldown": "クールダウン",
     "tooltip": {
       "status": "状態",
       "duration": "持続時間",
@@ -58,69 +144,59 @@
       "effects": "効果",
       "secondsSuffix": "秒",
       "adjustment": {
-        "label": "補正",
+        "label": "調整",
         "meta": "メタ",
         "run": "カード",
-        "none": "変化なし"
+        "none": "変更なし"
       }
     },
     "effect": {
-      "clickMult": "クリック倍率 ×{{value}}",
-      "ppsMult": "HPS ×{{value}}",
-      "critChancePlus": "クリティカル率 +{{value}}%",
-      "critMultPlus": "クリティカル倍率 +{{value}}",
-      "tickRateMult": "tick速度 ×{{value}}"
+      "clickMult": "クリック倍率 x{{value}}",
+      "ppsMult": "HPS x{{value}}",
+      "critChancePlus": "クリ率 +{{value}}%",
+      "critMultPlus": "クリ倍率 +{{value}}",
+      "tickRateMult": "Tick速度 x{{value}}"
     },
     "toast": {
       "activated": "{{name}} を発動！",
       "expired": "{{name}} が終了しました。"
     },
     "cheerful": {
-      "name": "ごきげん",
+      "name": "ごきげんタイム",
       "desc": "10秒間 HPS +75%"
     },
     "critBoost": {
-      "name": "にゃんクリ",
-      "desc": "12秒間 クリティカル率 +20% / クリ倍率 +0.5"
+      "name": "ニャンクリ",
+      "desc": "12秒間 クリ率+20% / クリ倍率+0.5"
     },
     "clickRush": {
       "name": "ラッシュ",
-      "desc": "8秒間 クリック倍率 ×1.6"
+      "desc": "8秒間 クリック倍率 x1.6"
     },
     "overdrive": {
       "name": "オーバードライブ",
-      "desc": "10秒間 HPSとクリック倍率 ×1.3"
+      "desc": "10秒間 HPSとクリック倍率 x1.3"
     },
     "timeWarp": {
       "name": "タイムワープ",
-      "desc": "6秒間 tick高速化（上級者向け）"
-    }
-  },
-  "stage": {
-    "goalTitle": "ステージ目標",
-    "goalHint": "目標ハッピーに到達すると報酬カードを選べます。",
-    "bossHint": "ボスを倒すと次のステージへ進めます。",
-    "goalProgress": "進捗",
-    "bossReward": "撃破報酬",
-    "stagesCleared": "{{current}} / {{total}} ステージ",
-    "goalRemaining": "残り {{value}}",
-    "allCleared": "すべてのステージをクリアしました！",
-    "summaryHint": "ラン結果をご確認ください。",
-    "names": {
-      "goal_0": "ひげの森",
-      "goal_1": "月光の丘",
-      "goal_2": "鈴の小径",
-      "boss_0": "守護者の門",
-      "boss_1": "オーロラの玉座"
+      "desc": "6秒間 tick速度アップ（上級者向け）"
+    },
+    "spiritSwarm": {
+      "name": "スピリットスウォーム",
+      "desc": "10秒間、召喚精霊がHPSを大きく底上げします。"
+    },
+    "doubleOrNothing": {
+      "name": "ダブル・オア・ナッシング",
+      "desc": "6秒間 クリック倍率x2。勝負を賭けるギャンブルバフ。"
     }
   },
   "shop": {
     "title": "ショップ",
     "owned": "所持数",
     "price": "価格",
-    "empty": "購入できるアイテムがありません。",
+    "empty": "いま購入できるアップグレードはありません。",
     "discount": "割引中",
-    "helper": "このショップの強化はランが終わるとリセットされます。",
+    "helper": "ショップの効果はラン終了時にリセットされます。",
     "items": {
       "soft_brush": {
         "name": "やわらかブラシ",
@@ -128,113 +204,113 @@
       },
       "treat_dispenser": {
         "name": "おやつディスペンサー",
-        "desc": "毎秒のハッピーが +0.4 上昇します。"
+        "desc": "毎秒ハッピーが +0.4 上昇します。"
       },
       "tower_upgrade": {
-        "name": "タワー強化",
+        "name": "タワーアップグレード",
         "desc": "なで力が +1.2 上昇します。"
       },
       "auto_cleaner": {
-        "name": "自動お掃除ロボ",
-        "desc": "毎秒のハッピーが +2.5 上昇します。"
+        "name": "オートクリーナー",
+        "desc": "毎秒ハッピーが +2.5 上昇します。"
       }
     }
   },
   "boss": {
     "title": "ボス戦",
-    "instruction": "ボスのHPを削り切りましょう。",
+    "instruction": "ボスのHPを削ってステージを突破しましょう。",
     "hp": "HP",
     "reward": "報酬",
     "clickPower": "なで力",
     "enemies": {
-      "forest_guardian": "森の番猫",
-      "clockwork_cat": "歯車キャット",
-      "shadow_pouncer": "影のハンター",
+      "forest_guardian": "森の守護者",
+      "clockwork_cat": "時計仕掛けの猫",
+      "shadow_pouncer": "影の飛びかかり猫",
       "crystal_lynx": "クリスタルリンクス",
       "aurora_tiger": "オーロラタイガー"
     }
   },
   "reward": {
     "title": "報酬カードを選択",
-    "helper": "選んだ効果はラン終了まで継続します。",
-    "button": "このカードにする",
-    "toast": "{{card}} を選択しました！",
+    "helper": "選んだ効果はラン終了まで持続します。",
+    "button": "このカードを取る",
+    "toast": "{{card}} を獲得しました！",
     "cards": {
       "claw_training": {
-        "name": "肉球トレーニング",
+        "name": "爪トレーニング",
         "desc": "なで力が 50% 上昇します。"
       },
       "sharp_reflex": {
         "name": "鋭い反射神経",
-        "desc": "クリティカル率が +10% されます。"
+        "desc": "クリ率が +10% 上昇します。"
       },
       "perfect_pounce": {
-        "name": "完璧な跳躍",
-        "desc": "クリティカル倍率が 25% 上昇します。"
+        "name": "完璧な飛びかかり",
+        "desc": "クリ倍率が 25% 上昇します。"
       },
       "cozy_blanket": {
         "name": "ぬくぬく毛布",
-        "desc": "毎秒ハッピーが 25% 増加します。"
+        "desc": "毎秒ハッピーが 25% 上昇します。"
       },
       "long_play": {
-        "name": "あそびたい盛り",
-        "desc": "スキル効果時間が +3 秒延長されます。"
+        "name": "ながらタイム",
+        "desc": "スキル持続が +3 秒されます。"
       },
       "focused_spirit": {
-        "name": "集中する瞳",
-        "desc": "スキルクールダウンが 20% 短縮されます。"
+        "name": "集中のこころ",
+        "desc": "スキルのクールダウンを 20% 短縮します。"
       },
       "lucky_cache": {
-        "name": "幸運の隠し場所",
-        "desc": "大量のハッピーを即時で獲得します。"
+        "name": "ラッキーストック",
+        "desc": "即座にハッピーを大量獲得します。"
       },
       "boss_instinct": {
-        "name": "ボスの弱点",
-        "desc": "ボス戦のなで力が 30% 上昇します。"
+        "name": "ボス本能",
+        "desc": "ボス戦中のクリックダメージが 30% 上昇します。"
       },
       "shoployalty": {
-        "name": "常連割引",
-        "desc": "ショップの価格が 10% 割引になります。"
+        "name": "ショップロイヤリティ",
+        "desc": "すべてのショップ価格が 10% 割引されます。"
       },
       "fast_paws": {
-        "name": "俊敏な手つき",
+        "name": "すばやい前足",
         "desc": "なで力が 20% 上昇します。"
       },
       "steady_rhythm": {
-        "name": "決まったリズム",
+        "name": "こつこつリズム",
         "desc": "毎秒ハッピー +15%、なで力 +10%。"
       }
     }
   },
   "summary": {
-    "titleCleared": "完全クリア！",
+    "titleCleared": "ラン達成！",
     "titleEnded": "ラン終了",
     "totalHappy": "総獲得ハッピー",
     "stages": "到達ステージ",
     "seed": "使用シード",
-    "souls": "累計猫魂",
-    "cards": "選択したカード",
-    "noCards": "今回のランではカードを選択していません。",
+    "souls": "獲得魂",
+    "cards": "選んだカード",
+    "noCards": "このランではカードを取得しませんでした。",
     "runId": "ランID"
   },
   "meta": {
-    "title": "メタ進行（準備中）",
-    "helper": "猫魂はランを周回すると貯まります。アップグレードは今後追加予定です。"
+    "title": "メタ進行（開発中）",
+    "helper": "猫魂はランをまたいで引き継がれます。恒久アップグレードも追加予定です。"
   },
   "toast": {
     "saved": "セーブしました！",
-    "reward": "{{card}} を獲得しました。",
+    "reward": "{{card}} を手に入れました。",
     "copied": "クリップボードにコピーしました。"
   },
   "log": {
     "gainHappy": "+{{amount}} ハッピー {{crit}}x{{multiplier}}",
-    "crit": "クリティカル！ ",
-    "skillActive": "ごきげんタイム発動！ {{duration}} 秒間ハッピー獲得量 +{{bonus}}%",
+    "crit": "クリティカル！",
+    "skillActive": "ごきげんタイム発動！ ハッピー獲得 +{{bonus}}% / {{duration}}秒",
     "stageCleared": "{{name}} をクリアしました。",
-    "bossDefeated": "{{name}} を倒しました！"
+    "bossDefeated": "{{name}} を撃破しました！"
   },
   "settings": {
     "title": "設定",
-    "comingSoon": "詳細設定は近日公開予定です。"
+    "comingSoon": "さらなるオプションは今後のアップデートで追加予定です。"
   }
 }

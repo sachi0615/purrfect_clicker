@@ -3,8 +3,16 @@ import { persist } from 'zustand/middleware';
 
 import type { MetaProgress, TempMods } from './types';
 import { useMetaStore } from './meta';
+import { getCharacterActiveOverrides, getCharacterPassiveMods, getCharacterUniqueSkills, useCharsStore } from './chars';
 
-export type SkillId = 'cheerful' | 'critBoost' | 'clickRush' | 'overdrive' | 'timeWarp';
+export type SkillId =
+  | 'cheerful'
+  | 'critBoost'
+  | 'clickRush'
+  | 'overdrive'
+  | 'timeWarp'
+  | 'spiritSwarm'
+  | 'doubleOrNothing';
 
 type SkillEffect = {
   clickMult?: number;
@@ -43,6 +51,7 @@ type SkillRuntimeModifiers = {
 type SkillsState = {
   specs: Record<SkillId, SkillSpec>;
   rt: Record<SkillId, SkillRuntime>;
+  skillIds: SkillId[];
   runModifiers: SkillRuntimeModifiers;
   isRunning: (id: SkillId) => boolean;
   isCooling: (id: SkillId) => boolean;
@@ -71,7 +80,7 @@ const META_CD_REDUCE_PER_LEVEL = 0.05; // -5% cooldown per level
 const META_CD_FLOOR = 0.3; // cooldown cannot drop below 30% of base
 const CHEERFUL_META_HPS_BONUS_PER_LEVEL = 0.05;
 
-const SKILL_IDS: SkillId[] = [
+const BASE_SKILL_IDS: SkillId[] = [
   'cheerful',
   'critBoost',
   'clickRush',
@@ -79,7 +88,7 @@ const SKILL_IDS: SkillId[] = [
   'timeWarp',
 ];
 
-const BASE_SPECS: Record<SkillId, BaseSkillSpec> = {
+const BASE_SPECS: Partial<Record<SkillId, BaseSkillSpec>> = {
   cheerful: {
     id: 'cheerful',
     nameKey: 'skill.cheerful.name',
@@ -155,42 +164,101 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function computeSpecs(meta: MetaProgress): Record<SkillId, SkillSpec> {
+type CharacterId = import('./chars').CharacterId;
+
+function computeSpecs(
+  meta: MetaProgress,
+  characterId?: CharacterId,
+): { specs: Record<SkillId, SkillSpec>; ids: SkillId[] } {
   const durationLevel = meta.permanentUpgrades['skill.durationPlus'] ?? 0;
   const cdLevel = meta.permanentUpgrades['skill.cdReduce'] ?? 0;
   const durationBonus = durationLevel * META_DURATION_PER_LEVEL;
   const cdFactor = clamp(1 - cdLevel * META_CD_REDUCE_PER_LEVEL, META_CD_FLOOR, 2);
 
-  return SKILL_IDS.reduce<Record<SkillId, SkillSpec>>((acc, id) => {
-    const base = BASE_SPECS[id];
-    const metaOverrides = base.applyMeta?.(meta) ?? {};
+  const overrides = getCharacterActiveOverrides(characterId);
+  const uniqueSkills = getCharacterUniqueSkills(characterId);
+
+  const ids: SkillId[] = [...BASE_SKILL_IDS];
+  const specs: Record<SkillId, SkillSpec> = {} as Record<SkillId, SkillSpec>;
+
+  BASE_SKILL_IDS.forEach((id) => {
+    const baseSource = BASE_SPECS[id];
+    if (!baseSource) {
+      return;
+    }
+    const base = cloneSkillSpec(baseSource);
+    const override = overrides[id];
+    const withOverride = override ? applyOverride(base, override) : base;
+    const metaOverrides = withOverride.applyMeta?.(meta) ?? {};
     const mergedEffect: SkillEffect = {
-      ...base.effect,
+      ...withOverride.effect,
       ...metaOverrides.effect,
     };
 
-    const baseDuration = metaOverrides.baseDuration ?? base.baseDuration;
-    const baseCd = metaOverrides.baseCd ?? base.baseCd;
+    const baseDuration = metaOverrides.baseDuration ?? withOverride.baseDuration;
+    const baseCd = metaOverrides.baseCd ?? withOverride.baseCd;
 
     const duration = Math.max(0.5, baseDuration + durationBonus);
     const cooldown = Math.max(0.5, baseCd * cdFactor);
 
-    acc[id] = {
-      ...base,
+    specs[id] = {
+      ...withOverride,
       baseDuration: duration,
       baseCd: cooldown,
       effect: mergedEffect,
     };
-    return acc;
-  }, {} as Record<SkillId, SkillSpec>);
+  });
+
+  uniqueSkills.forEach((skill) => {
+    const clone = cloneSkillSpec(skill);
+    const metaOverrides = clone.applyMeta?.(meta) ?? {};
+    const mergedEffect: SkillEffect = {
+      ...clone.effect,
+      ...metaOverrides.effect,
+    };
+    const baseDuration = metaOverrides.baseDuration ?? clone.baseDuration;
+    const baseCd = metaOverrides.baseCd ?? clone.baseCd;
+    const duration = Math.max(0.5, baseDuration + durationBonus);
+    const cooldown = Math.max(0.5, baseCd * cdFactor);
+    specs[clone.id] = {
+      ...clone,
+      baseDuration: duration,
+      baseCd: cooldown,
+      effect: mergedEffect,
+    };
+    if (!ids.includes(clone.id)) {
+      ids.push(clone.id);
+    }
+  });
+
+  return { specs, ids };
+}
+
+function cloneSkillSpec(spec: SkillSpec): SkillSpec {
+  return {
+    ...spec,
+    effect: { ...spec.effect },
+  };
+}
+
+function applyOverride(base: SkillSpec, override: Partial<SkillSpec>): SkillSpec {
+  return {
+    ...base,
+    ...override,
+    effect: {
+      ...base.effect,
+      ...override.effect,
+    },
+  };
 }
 
 function ensureRuntime(
   source?: Partial<Record<SkillId, SkillRuntime>>,
   now = Date.now(),
+  skillIds: SkillId[] = BASE_SKILL_IDS,
 ): Record<SkillId, SkillRuntime> {
   const runtime: Record<SkillId, SkillRuntime> = {} as Record<SkillId, SkillRuntime>;
-  SKILL_IDS.forEach((id) => {
+  skillIds.forEach((id) => {
     const original = source?.[id];
     const coolingDownUntil =
       original?.coolingDownUntil && original.coolingDownUntil > now
@@ -208,8 +276,11 @@ function ensureRuntime(
 }
 
 function extractRuntimeModifiers(tempMods?: TempMods | null): SkillRuntimeModifiers {
-  const durationBonus = tempMods?.skillDurationPlus ?? 0;
-  const cooldownMultRaw = tempMods?.skillCdMult ?? 1;
+  const charMods = getCharacterPassiveMods();
+  const durationBonus =
+    (charMods.skillDurationPlus ?? 0) + (tempMods?.skillDurationPlus ?? 0);
+  const cooldownMultRaw =
+    (charMods.skillCdMult ?? 1) * (tempMods?.skillCdMult ?? 1);
   const cooldownMult = cooldownMultRaw <= 0 ? 0.1 : cooldownMultRaw;
   return {
     durationBonus,
@@ -220,13 +291,15 @@ function extractRuntimeModifiers(tempMods?: TempMods | null): SkillRuntimeModifi
 const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
   (set, get) => {
     const meta = useMetaStore.getState().meta;
+    const chars = useCharsStore.getState();
+    const computed = computeSpecs(meta, chars.selected);
+    const initialSkillIds = computed.ids;
+    const baseModifiers = extractRuntimeModifiers(undefined);
     return {
-      specs: computeSpecs(meta),
-      rt: ensureRuntime(),
-      runModifiers: {
-        durationBonus: 0,
-        cooldownMult: 1,
-      },
+      specs: computed.specs,
+      skillIds: initialSkillIds,
+      rt: ensureRuntime(undefined, Date.now(), initialSkillIds),
+      runModifiers: baseModifiers,
       isRunning: (id) => {
         const runtime = get().rt[id];
         return runtime?.runningUntil ? runtime.runningUntil > Date.now() : false;
@@ -284,7 +357,7 @@ const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
       tick: (now) => {
         set((current) => {
           let updated: Record<SkillId, SkillRuntime> | null = null;
-          SKILL_IDS.forEach((id) => {
+          current.skillIds.forEach((id) => {
             const runtime = current.rt[id];
             if (!runtime) {
               return;
@@ -325,28 +398,36 @@ const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
         });
       },
       resetAll: () => {
-        set({ rt: ensureRuntime() });
+        set((current) => ({
+          ...current,
+          rt: ensureRuntime(undefined, Date.now(), current.skillIds),
+        }));
       },
       setRunModifiers: (mods) => {
-        set({ runModifiers: mods });
+        set((current) => ({
+          ...current,
+          runModifiers: mods,
+        }));
       },
     };
   },
   {
     name: SKILL_STORAGE_KEY,
-    partialize: (state) => ({
-      rt: state.rt,
-    }),
-    onRehydrateStorage: () => (state, error) => {
+    partialize: (state) => ({ rt: state.rt }),
+    onRehydrateStorage: () => (persisted, error) => {
       const meta = useMetaStore.getState().meta;
+      const chars = useCharsStore.getState();
+      const computed = computeSpecs(meta, chars.selected);
       const now = Date.now();
       if (error) {
         console.error('Failed to rehydrate skill store', error);
       }
       useSkillsStore.setState((current) => ({
         ...current,
-        specs: computeSpecs(meta),
-        rt: ensureRuntime(state?.rt ?? current.rt, now),
+        specs: computed.specs,
+        skillIds: computed.ids,
+        rt: ensureRuntime(persisted?.rt ?? current.rt, now, computed.ids),
+        runModifiers: extractRuntimeModifiers(undefined),
       }));
     },
   },
@@ -354,13 +435,38 @@ const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
 
 export const useSkillsStore = create<SkillsState>()(createSkillsStore);
 
-useMetaStore.subscribe((state, prevState) => {
-  if (state.meta === prevState.meta) {
+let lastMeta = useMetaStore.getState().meta;
+useMetaStore.subscribe((state) => {
+  if (state.meta === lastMeta) {
     return;
   }
+  lastMeta = state.meta;
+  const chars = useCharsStore.getState();
+  const computed = computeSpecs(state.meta, chars.selected);
+  const now = Date.now();
   useSkillsStore.setState((current) => ({
     ...current,
-    specs: computeSpecs(state.meta),
+    specs: computed.specs,
+    skillIds: computed.ids,
+    rt: ensureRuntime(current.rt, now, computed.ids),
+  }));
+});
+
+let lastCharacter = useCharsStore.getState().selected;
+useCharsStore.subscribe((state) => {
+  if (state.selected === lastCharacter) {
+    return;
+  }
+  lastCharacter = state.selected;
+  const meta = useMetaStore.getState().meta;
+  const computed = computeSpecs(meta, state.selected);
+  const now = Date.now();
+  useSkillsStore.setState((current) => ({
+    ...current,
+    specs: computed.specs,
+    skillIds: computed.ids,
+    rt: ensureRuntime(current.rt, now, computed.ids),
+    runModifiers: extractRuntimeModifiers(undefined),
   }));
 });
 
@@ -378,7 +484,7 @@ export function getSkillAggregates(now = Date.now()): SkillAggregates {
   let tickRateFactor = 1;
   const activeSkills: SkillId[] = [];
 
-  SKILL_IDS.forEach((id) => {
+  state.skillIds.forEach((id) => {
     const runtime = state.rt[id];
     if (!runtime || runtime.runningUntil <= now) {
       return;
@@ -415,12 +521,21 @@ export function getSkillAggregates(now = Date.now()): SkillAggregates {
   };
 }
 
-export { SKILL_IDS };
-
 export function getBaseSkillSpec(id: SkillId): SkillSpec {
   const base = BASE_SPECS[id];
+  if (!base) {
+    throw new Error(`No base spec for skill ${id}`);
+  }
   return {
     ...base,
     effect: { ...base.effect },
   };
 }
+
+export function isBaseSkill(id: SkillId): boolean {
+  return Boolean(BASE_SPECS[id]);
+}
+
+
+
+

@@ -35,6 +35,8 @@ export type Stage = {
   rewardPool: RewardCardId[];
 };
 
+type CharacterId = import('./chars').CharacterId;
+
 export type RunState = {
   runId: string;
   seed: number;
@@ -48,6 +50,7 @@ export type RunState = {
   tempMods: TempMods;
   alive: boolean;
   cleared: boolean;
+  characterId: CharacterId;
 };
 
 export type MetaProgress = {

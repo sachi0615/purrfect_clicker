@@ -8,6 +8,7 @@ import { createRng, normalizedSeedFrom, shuffleInPlace } from '../lib/rng';
 import { getRewardCard } from '../data/cards';
 import { generateStages } from '../data/stages';
 import { getShopItem } from '../data/shopItems';
+import { getCharacterPassiveMods, runCharacterOnStart, useCharsStore } from './chars';
 import { useMetaStore } from './meta';
 import {
   getSkillAggregates,
@@ -66,7 +67,14 @@ export const useRunStore = create<RunStore>()(
       shopLevels: {},
       newRun: (seed) => {
         const nextSeed = seed ?? Date.now();
-        const run = createRun(nextSeed);
+        const chars = useCharsStore.getState();
+        const selectedId = chars.selected;
+        if (!selectedId) {
+          chars.requestSelection();
+          return;
+        }
+        const run = createRun(nextSeed, selectedId);
+        runCharacterOnStart(run, (patch) => Object.assign(run, patch));
         set({
           run,
           rewardChoices: [],
@@ -90,7 +98,9 @@ export const useRunStore = create<RunStore>()(
         const now = Date.now();
         useSkillsStore.getState().tick(now);
         const aggregates = getSkillAggregates(now);
-        const ppsMult = (state.run.tempMods.ppsMult ?? 1) * aggregates.ppsMult;
+        const charMods = getCharacterPassiveMods(state.run.characterId);
+        const ppsMult =
+          (state.run.tempMods.ppsMult ?? 1) * aggregates.ppsMult * (charMods.ppsMult ?? 1);
         const effectiveDt = dt * aggregates.tickRateFactor;
         const gain = state.run.pps * ppsMult * effectiveDt;
         set((current) => {
@@ -124,16 +134,17 @@ export const useRunStore = create<RunStore>()(
           if (!existingRun) {
             return current;
           }
+          const totalGain = outcome.gain + outcome.bonusHappy;
           const floatingTexts = appendFloatingText(
             decayFloatingTexts(current.floatingTexts, 0),
-            outcome.gain,
+            totalGain,
             outcome.crit,
           );
           return {
             ...current,
             run: {
               ...existingRun,
-              happy: existingRun.happy + outcome.gain,
+              happy: existingRun.happy + totalGain,
               totalPets: existingRun.totalPets + 1,
             },
             floatingTexts,
@@ -245,7 +256,7 @@ export const useRunStore = create<RunStore>()(
 
           const floatingTexts = appendFloatingText(
             decayFloatingTexts(current.floatingTexts, 0),
-            outcome.gain,
+            outcome.gain + outcome.bonusHappy,
             outcome.crit,
           );
 
@@ -257,6 +268,7 @@ export const useRunStore = create<RunStore>()(
               happy:
                 existingRun.happy +
                 outcome.gain +
+                outcome.bonusHappy +
                 (defeated ? activeStage.boss.rewardHappy : 0),
               totalPets: existingRun.totalPets + 1,
             },
@@ -414,13 +426,26 @@ export const useRunStore = create<RunStore>()(
         }
         state.bossOpen = false;
         state.floatingTexts = [];
+        const chars = useCharsStore.getState();
+        if (state.run && !state.run.characterId) {
+          state.run = null;
+          chars.resetSelection();
+        } else if (state.run?.characterId && chars.selected !== state.run.characterId) {
+          useCharsStore.setState((current) => ({
+            ...current,
+            selected: state.run?.characterId,
+            modalOpen: false,
+          }));
+        }
         syncSkillRunModifiers(state.run?.tempMods);
       },
     },
   ),
 );
 
-function createRun(seed: number): RunState {
+type CharacterId = import('./chars').CharacterId;
+
+function createRun(seed: number, characterId: CharacterId): RunState {
   return {
     runId: nanoid(),
     seed,
@@ -434,6 +459,7 @@ function createRun(seed: number): RunState {
     tempMods: {},
     alive: true,
     cleared: false,
+    characterId,
   };
 }
 
@@ -441,24 +467,39 @@ function computeClickOutcome(
   run: RunState,
   options: { boss: boolean },
   timestamp = Date.now(),
-): { gain: number; crit: boolean } {
+): { gain: number; crit: boolean; bonusHappy: number } {
   const aggregates = getSkillAggregates(timestamp);
+  const charMods = getCharacterPassiveMods(run.characterId);
   const base = run.clickPower;
-  const clickMult = (run.tempMods.clickMult ?? 1) * aggregates.clickMult;
+  const clickMult =
+    (run.tempMods.clickMult ?? 1) * aggregates.clickMult * (charMods.clickMult ?? 1);
   let gain = base * clickMult;
 
   if (options.boss) {
-    gain *= run.tempMods.bossClickMult ?? 1;
+    gain *= (run.tempMods.bossClickMult ?? 1) * (charMods.bossTakenMult ?? 1);
   }
 
-  const critChance = clamp01((run.tempMods.critChance ?? 0) + aggregates.critChancePlus);
-  const critMult = Math.max(1, (run.tempMods.critMult ?? 2) + aggregates.critMultPlus);
+  const critChance = clamp01(
+    (run.tempMods.critChance ?? 0) +
+      aggregates.critChancePlus +
+      (charMods.critChancePlus ?? 0),
+  );
+  const critMult = Math.max(
+    1,
+    (run.tempMods.critMult ?? 2) +
+      aggregates.critMultPlus +
+      (charMods.critMultPlus ?? 0),
+  );
   const crit = Math.random() < critChance;
   if (crit) {
     gain *= critMult;
+  } else if (charMods.nonCritMultiplier !== undefined) {
+    gain *= charMods.nonCritMultiplier;
   }
 
-  return { gain, crit };
+  const bonusHappy = crit ? gain * (charMods.critHappyBonus ?? 0) : 0;
+
+  return { gain, crit, bonusHappy };
 }
 
 function appendFloatingText(

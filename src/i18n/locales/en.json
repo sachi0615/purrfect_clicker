@@ -25,6 +25,92 @@
     "cancel": "Cancel",
     "buy": "Buy"
   },
+  "char": {
+    "select": {
+      "title": "Choose a Character",
+      "helper": "Pick a feline lead before starting your run.",
+      "keyboardHint": "Use arrow keys to browse, Enter to confirm, Esc to close.",
+      "prompt": "You can only switch before a run begins."
+    },
+    "start": "Begin with this cat",
+    "selected": "Selected",
+    "passives": "Passives",
+    "uniqueSkill": "Unique Skill",
+    "changeDisabled": "You can't change characters while a run is active.",
+    "badge": {
+      "select": "Select Character",
+      "helper": "Click to choose your hero",
+      "change": "View details for {{name}}",
+      "viewOnly": "Run in progress - view only"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "critCat": {
+      "name": "Crit Cat",
+      "desc": "Lands decisive crits. Quality over quantity."
+    },
+    "tempoCat": {
+      "name": "Tempo Cat",
+      "desc": "Wins through skill uptime. Loves short fights."
+    },
+    "summonerCat": {
+      "name": "Summoner Cat",
+      "desc": "Familiars bolster steady HPS and damage over time."
+    },
+    "guardianCat": {
+      "name": "Guardian Cat",
+      "desc": "Shrugs off debuffs and keeps the run steady."
+    },
+    "gamblerCat": {
+      "name": "Gambler Cat",
+      "desc": "High-risk, high-reward. Always chasing the jackpot."
+    },
+    "passive": {
+      "critEngine": {
+        "name": "Crit Engine",
+        "desc": "+10% crit chance and +0.3 crit multiplier at all times."
+      },
+      "precisionPaws": {
+        "name": "Precision Paws",
+        "desc": "Click multiplier increased by 10% permanently."
+      },
+      "quickReflex": {
+        "name": "Quick Reflex",
+        "desc": "All skill cooldowns reduced by 15%."
+      },
+      "extendedPlay": {
+        "name": "Extended Play",
+        "desc": "All skill durations gain +2 seconds."
+      },
+      "tinyHelpers": {
+        "name": "Tiny Helpers",
+        "desc": "HPS +20%. Little spirits sometimes deal bonus damage."
+      },
+      "emberClaws": {
+        "name": "Ember Claws",
+        "desc": "Clicks hit slightly harder and enable burning follow-up."
+      },
+      "ironWhisker": {
+        "name": "Iron Whisker",
+        "desc": "Debuff effects on you are reduced by 20%."
+      },
+      "steadyPurr": {
+        "name": "Steady Purr",
+        "desc": "+10% HPS for long-haul stability."
+      },
+      "luckySeven": {
+        "name": "Lucky Seven",
+        "desc": "Crit chance +5%. Non-crits hit 10% softer."
+      },
+      "jackpot": {
+        "name": "Jackpot",
+        "desc": "Crits grant additional instant Happy."
+      }
+    }
+  },
   "pills": {
     "happy": "Happy",
     "clickPower": "Click Power",
@@ -65,11 +151,11 @@
       }
     },
     "effect": {
-      "clickMult": "Click ×{{value}}",
-      "ppsMult": "HPS ×{{value}}",
+      "clickMult": "Click x{{value}}",
+      "ppsMult": "HPS x{{value}}",
       "critChancePlus": "Crit chance +{{value}}%",
       "critMultPlus": "Crit multiplier +{{value}}",
-      "tickRateMult": "Tick speed ×{{value}}"
+      "tickRateMult": "Tick speed x{{value}}"
     },
     "toast": {
       "activated": "Activated {{name}}!",
@@ -85,33 +171,23 @@
     },
     "clickRush": {
       "name": "Rush",
-      "desc": "Click multiplier ×1.6 for 8s"
+      "desc": "Click multiplier x1.6 for 8s"
     },
     "overdrive": {
       "name": "Overdrive",
-      "desc": "HPS and click ×1.3 for 10s"
+      "desc": "HPS and click x1.3 for 10s"
     },
     "timeWarp": {
       "name": "Time Warp",
       "desc": "Faster tick for 6s (advanced)"
-    }
-  },
-  "stage": {
-    "goalTitle": "Stage Goal",
-    "goalHint": "Reach the target Happy to choose a reward card.",
-    "bossHint": "Defeat the boss to move forward.",
-    "goalProgress": "Progress",
-    "bossReward": "Reward",
-    "stagesCleared": "{{current}} / {{total}} stages",
-    "goalRemaining": "{{value}} remaining",
-    "allCleared": "All stages cleared!",
-    "summaryHint": "Check the run summary for results.",
-    "names": {
-      "goal_0": "Whisker Woods",
-      "goal_1": "Moonlit Hill",
-      "goal_2": "Bell Path",
-      "boss_0": "Guardian Gate",
-      "boss_1": "Aurora Throne"
+    },
+    "spiritSwarm": {
+      "name": "Spirit Swarm",
+      "desc": "For 10s, summoned spirits greatly boost passive income."
+    },
+    "doubleOrNothing": {
+      "name": "Double or Nothing",
+      "desc": "6s of x2 click power. High stakes, bigger thrills."
     }
   },
   "shop": {

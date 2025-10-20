@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SKILL_IDS, useSkillsStore } from '../store/skills';
+import { useSkillsStore } from '../store/skills';
 import { pushToast } from '../store/toast';
 
 export function SkillToasts() {
   const { t } = useTranslation();
   const specs = useSkillsStore((state) => state.specs);
   const runtimes = useSkillsStore((state) => state.rt);
+  const skillIds = useSkillsStore((state) => state.skillIds);
   const prev = useRef(runtimes);
   const ready = useRef(false);
 
@@ -21,7 +22,7 @@ export function SkillToasts() {
     const now = Date.now();
     const previous = prev.current;
 
-    SKILL_IDS.forEach((id) => {
+    skillIds.forEach((id) => {
       const spec = specs[id];
       if (!spec) {
         return;

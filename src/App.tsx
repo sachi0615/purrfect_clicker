@@ -12,18 +12,21 @@ import { StagePanel } from './components/StagePanel';
 import { TopPills } from './components/TopPills';
 import { TopBar } from './components/TopBar';
 import { ToastStack } from './components/Toast';
+import { CharacterSelect } from './components/CharacterSelect';
 import { useRunStore } from './store/run';
+import { useCharsStore } from './store/chars';
 
 export default function App() {
   const run = useRunStore((state) => state.run);
   const newRun = useRunStore((state) => state.newRun);
   const tick = useRunStore((state) => state.tick);
+  const selectedCharacter = useCharsStore((state) => state.selected);
 
   useEffect(() => {
-    if (!run) {
+    if (!run && selectedCharacter) {
       newRun();
     }
-  }, [run, newRun]);
+  }, [run, newRun, selectedCharacter]);
 
   useEffect(() => {
     let frame = 0;
@@ -59,6 +62,7 @@ export default function App() {
       </div>
       <ToastStack />
       <SkillToasts />
+      <CharacterSelect />
       <BossModal />
       <RewardPicker />
       <RunSummary />

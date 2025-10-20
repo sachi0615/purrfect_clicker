@@ -4,6 +4,7 @@ import { Cat, Cog, Save } from 'lucide-react';
 
 import { pushToast } from '../store/toast';
 import { LanguageSwitch } from './LanguageSwitch';
+import { CharacterBadge } from './CharacterBadge';
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -29,7 +30,8 @@ export function TopBar() {
           <p className="text-sm text-plum-600 md:text-base">{t('app.subtitle')}</p>
         </div>
       </div>
-      <div className="flex items-center gap-3 md:gap-4">
+      <div className="flex flex-wrap items-center gap-3 md:gap-4">
+        <CharacterBadge />
         <LanguageSwitch />
         <button
           type="button"

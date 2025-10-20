@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  Coins,
   Flame,
   Hourglass,
   Sparkles,
@@ -15,8 +16,8 @@ import { Section } from './Section';
 import { SkillTooltip } from './SkillTooltip';
 import { cn } from '../lib/utils';
 import {
-  SKILL_IDS,
   getBaseSkillSpec,
+  isBaseSkill,
   syncSkillRunModifiers,
   type SkillId,
   type SkillSpec,
@@ -29,13 +30,28 @@ type SkillBinding = {
   hotkey?: string;
 };
 
-const SKILL_BINDINGS: SkillBinding[] = [
-  { id: 'cheerful', hotkey: 'Q' },
-  { id: 'critBoost', hotkey: 'W' },
-  { id: 'clickRush', hotkey: 'E' },
-  { id: 'overdrive', hotkey: 'R' },
-  { id: 'timeWarp', hotkey: 'T' },
-];
+type SkillView = {
+  binding: SkillBinding;
+  spec: SkillSpec;
+  baseSpec: SkillSpec;
+  statusRunning: boolean;
+  statusCooling: boolean;
+  remain: { cd: number; dur: number };
+  progress: number;
+  statusKey: string;
+  runTotalDuration: number;
+  runTotalCooldown: number;
+};
+
+const DEFAULT_HOTKEYS: Partial<Record<SkillId, string>> = {
+  cheerful: 'Q',
+  critBoost: 'W',
+  clickRush: 'E',
+  overdrive: 'R',
+  timeWarp: 'T',
+  spiritSwarm: 'Y',
+  doubleOrNothing: 'F',
+};
 
 const ICONS: Record<string, LucideIcon> = {
   Sparkles,
@@ -43,6 +59,7 @@ const ICONS: Record<string, LucideIcon> = {
   Zap,
   Flame,
   Hourglass,
+  Coins,
 };
 
 const CIRCLE_RADIUS = 42;
@@ -58,30 +75,38 @@ export function SkillBar() {
 
   const {
     specs,
-    rt,
     trigger,
     runModifiers,
     isRunning,
     isCooling,
     remaining,
+    skillIds,
   } = useSkillsStore(
     (state) => ({
       specs: state.specs,
-      rt: state.rt,
       trigger: state.trigger,
       runModifiers: state.runModifiers,
       isRunning: state.isRunning,
       isCooling: state.isCooling,
       remaining: state.remaining,
+      skillIds: state.skillIds,
     }),
     shallow,
   );
 
-  const skills = useMemo(
-    () =>
-      SKILL_BINDINGS.map((binding) => {
-        const baseSpec = getBaseSkillSpec(binding.id);
-        const spec = specs[binding.id] ?? baseSpec;
+  const bindings = useMemo<SkillBinding[]>(
+    () => skillIds.map((id) => ({ id, hotkey: DEFAULT_HOTKEYS[id] })),
+    [skillIds],
+  );
+
+  const skills = useMemo(() => {
+    return bindings
+      .map<SkillView | null>((binding) => {
+        const spec = specs[binding.id];
+        if (!spec) {
+          return null;
+        }
+        const baseSpec = isBaseSkill(binding.id) ? getBaseSkillSpec(binding.id) : spec;
         const runTotalDuration = Math.max(0.5, spec.baseDuration + runModifiers.durationBonus);
         const runTotalCooldown = Math.max(0.5, spec.baseCd * runModifiers.cooldownMult);
         const statusRunning = isRunning(binding.id);
@@ -108,13 +133,13 @@ export function SkillBar() {
           runTotalDuration,
           runTotalCooldown,
         };
-      }),
-    [isCooling, isRunning, remaining, runModifiers.cooldownMult, runModifiers.durationBonus, specs],
-  );
+      })
+      .filter((entry): entry is SkillView => entry !== null);
+  }, [bindings, isCooling, isRunning, remaining, runModifiers.cooldownMult, runModifiers.durationBonus, specs]);
 
   useEffect(() => {
     const map = new Map<string, SkillId>();
-    SKILL_BINDINGS.forEach(({ id, hotkey }) => {
+    bindings.forEach(({ id, hotkey }) => {
       if (!hotkey) {
         return;
       }
@@ -142,7 +167,7 @@ export function SkillBar() {
 
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [trigger]);
+  }, [bindings, trigger]);
 
   const activeNames = skills
     .filter((entry) => entry.statusRunning)
