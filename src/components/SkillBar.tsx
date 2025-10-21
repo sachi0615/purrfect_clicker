@@ -179,16 +179,20 @@ export function SkillBar() {
       description={
         <span className="text-xs text-plum-500 md:text-sm">{t('skill.bar.helper')}</span>
       }
+      className="h-full"
+      contentClassName="flex h-full flex-col gap-4"
     >
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        {skills.map((entry) => (
-          <SkillButton
-            key={entry.binding.id}
-            entry={entry}
-            trigger={trigger}
-            t={t}
-          />
-        ))}
+      <div className="overflow-x-auto">
+        <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {skills.map((entry) => (
+            <SkillButton
+              key={entry.binding.id}
+              entry={entry}
+              trigger={trigger}
+              t={t}
+            />
+          ))}
+        </div>
       </div>
       <AnimatePresence>
         {activeNames.length > 0 ? (

@@ -45,21 +45,31 @@ export default function App() {
   }, [tick]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-plum-50 via-plum-100 to-plum-200 p-4 md:p-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 md:gap-6">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-plum-50 via-plum-100 to-plum-200 p-4 md:p-6 lg:p-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 overflow-hidden md:gap-6">
         <TopBar />
         <TopPills />
-        <SkillBar />
-        <div className="grid gap-4 md:gap-6 lg:grid-cols-[2fr_1fr]">
-          <div className="flex flex-col gap-4 md:gap-6">
-            <ClickPad />
-            <StagePanel />
+        <main className="grid flex-1 gap-4 overflow-hidden md:grid-cols-[2fr_1fr] md:items-start">
+          <div className="grid h-full min-h-0 gap-4 md:auto-rows-min">
+            <div className="min-h-0">
+              <ClickPad />
+            </div>
+            <div className="min-h-0">
+              <StagePanel />
+            </div>
           </div>
-          <div className="flex flex-col gap-4 md:gap-6">
-            <ShopPanel />
-            <MetaPanel />
+          <div className="grid h-full min-h-0 gap-4 md:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="min-h-0">
+              <SkillBar />
+            </div>
+            <div className="min-h-0">
+              <ShopPanel />
+            </div>
+            <div className="min-h-0">
+              <MetaPanel />
+            </div>
           </div>
-        </div>
+        </main>
       </div>
       <ToastStack />
       <SkillToasts />

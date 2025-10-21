@@ -41,7 +41,7 @@ export function ClickPad() {
         </span>
       }
       icon={<Cat className="h-5 w-5" aria-hidden />}
-      className="relative flex flex-1 flex-col"
+      className="relative flex min-h-0 flex-1 flex-col"
       headerClassName="mb-6"
     >
       <div className="relative flex flex-1 items-center justify-center">

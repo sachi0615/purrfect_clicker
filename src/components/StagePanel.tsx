@@ -61,7 +61,7 @@ export function StagePanel() {
           {t('action.reset')}
         </button>
       }
-      className="flex flex-col gap-4"
+      className="flex h-full min-h-0 flex-col gap-4"
     >
       <div className="flex items-center justify-between text-xs text-plum-500 md:text-sm">
         <span>

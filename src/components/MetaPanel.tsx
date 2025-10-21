@@ -39,12 +39,13 @@ export function MetaPanel() {
       title={t('meta.title')}
       description={t('meta.helper')}
       icon={<Sparkles className="h-5 w-5 text-plum-500" aria-hidden />}
+      className="flex h-full flex-col gap-4 overflow-hidden"
     >
-      <div className="flex flex-col gap-4">
-        <div className="rounded-2xl border border-plum-100 bg-white/80 p-4 text-center text-2xl font-bold text-plum-700 shadow-sm md:text-3xl">
-          {fmt(meta.catSouls)}
-        </div>
-        <ul className="flex flex-col gap-3">
+      <div className="rounded-2xl border border-plum-100 bg-white/80 p-4 text-center text-2xl font-bold text-plum-700 shadow-sm md:text-3xl">
+        {fmt(meta.catSouls)}
+      </div>
+      <div className="flex-1 overflow-y-auto pr-1 md:pr-2">
+        <ul className="flex flex-col gap-3 pb-1">
           {upgrades.map(({ spec, level, maxed, cost, affordable, descValues }) => {
             const name = t(spec.nameKey);
             const description = t(spec.descKey, {
@@ -52,9 +53,10 @@ export function MetaPanel() {
               level,
               nextLevel: level + 1,
             });
-            const levelLabel = spec.maxLevel !== undefined
-              ? t('meta.upgrades.levelCapped', { level, max: spec.maxLevel })
-              : t('meta.upgrades.levelInfinite', { level });
+            const levelLabel =
+              spec.maxLevel !== undefined
+                ? t('meta.upgrades.levelCapped', { level, max: spec.maxLevel })
+                : t('meta.upgrades.levelInfinite', { level });
             return (
               <li
                 key={spec.id}

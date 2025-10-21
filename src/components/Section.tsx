@@ -10,6 +10,7 @@ type SectionProps = {
   children: ReactNode;
   className?: string;
   headerClassName?: string;
+  contentClassName?: string;
 };
 
 export function Section({
@@ -20,6 +21,7 @@ export function Section({
   children,
   className,
   headerClassName,
+  contentClassName,
 }: SectionProps) {
   return (
     <section
@@ -50,7 +52,7 @@ export function Section({
           {action ? <div className="shrink-0">{action}</div> : null}
         </header>
       )}
-      <div className="space-y-3 md:space-y-4">{children}</div>
+      <div className={cn('space-y-3 md:space-y-4', contentClassName)}>{children}</div>
     </section>
   );
 }
