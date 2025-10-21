@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-import { getRewardCard } from '../data/cards';
+import { getRewardCard, getRewardBonus } from '../data/cards';
 import { fmt } from '../lib/format';
 import { useMetaStore } from '../store/meta';
 import { useRunStore } from '../store/run';
+import { BUILD_ARCHETYPE_INFO } from '../store/build';
 
 export function RunSummary() {
   const { t } = useTranslation();
@@ -20,10 +21,16 @@ export function RunSummary() {
 
   const cards = summary.cards.map((id) => {
     const card = getRewardCard(id);
+    const bonus = getRewardBonus(id);
+    const archetypeInfo = BUILD_ARCHETYPE_INFO[card.archetype];
     return {
-      ...card,
-      localizedName: t(`reward.cards.${card.id}.name`, { defaultValue: card.name }),
-      localizedDesc: t(`reward.cards.${card.id}.desc`, { defaultValue: card.desc }),
+      id: card.id,
+      archetype: card.archetype,
+      tier: card.tier,
+      name: t(bonus.nameKey),
+      desc: t(bonus.descKey),
+      gradient: `bg-gradient-to-r ${archetypeInfo.gradientFrom} ${archetypeInfo.gradientTo}`,
+      archetypeLabel: t(archetypeInfo.titleKey),
     };
   });
 
@@ -71,11 +78,19 @@ export function RunSummary() {
                   key={card.id}
                   className="rounded-2xl border border-plum-100 bg-white/80 p-3 shadow-sm md:p-4"
                 >
-                  <div className="text-xs font-semibold uppercase tracking-wide text-plum-400 md:text-sm">
+                  <div
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow ${card.gradient} md:text-sm`}
+                  >
+                    {card.archetypeLabel}
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[0.65rem] font-bold">
+                      {t('build.reward.tier', { tier: card.tier })}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs font-semibold uppercase tracking-wide text-plum-400 md:text-sm">
                     {card.id}
                   </div>
-                  <div className="text-base font-semibold text-plum-900 md:text-lg">{card.localizedName}</div>
-                  <div className="text-sm text-plum-600 md:text-base">{card.localizedDesc}</div>
+                  <div className="text-base font-semibold text-plum-900 md:text-lg">{card.name}</div>
+                  <div className="text-sm text-plum-600 md:text-base">{card.desc}</div>
                 </li>
               ))
             )}

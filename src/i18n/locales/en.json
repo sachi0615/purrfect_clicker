@@ -233,52 +233,106 @@
   "reward": {
     "title": "Choose a Reward",
     "helper": "Selected effects persist until the run ends.",
-    "button": "Take this card",
-    "toast": "Picked {{card}}!",
-    "cards": {
-      "claw_training": {
-        "name": "Claw Training",
-        "desc": "Increase click power by 50%."
+    "button": "Take this card"
+  },
+  "build": {
+    "select": {
+      "title": "Choose Your Build Focus",
+      "helper": "Select a path to bias future rewards. You can skip to stay flexible.",
+      "choose": "Focus this path",
+      "skip": "Skip for now"
+    },
+    "reward": {
+      "toast": "{{archetype}} bonus unlocked: {{bonus}}",
+      "focus": "Favored",
+      "tier": "Tier {{tier}}"
+    },
+    "badge": {
+      "none": "No Build Focus",
+      "tooltipTitle": "Collected Bonuses"
+    },
+    "archetype": {
+      "burst": "Burst Clicks",
+      "engine": "Engine Core",
+      "luck": "Lucky Strikes",
+      "tempo": "Tempo Rhythm",
+      "utility": "Utility Arts"
+    },
+    "archetypeDesc": {
+      "burst": "Explosive taps and crit chains that spike instantly.",
+      "engine": "Passive engines that pour out steady Happy.",
+      "luck": "Stack crit rate and payout to chase jackpots.",
+      "tempo": "Skills feed skills - extend uptime forever.",
+      "utility": "Damage over time and debuffs control the fight."
+    },
+    "burst": {
+      "doubleTap": {
+        "name": "Double Tap",
+        "desc": "Click power +35%."
       },
-      "sharp_reflex": {
-        "name": "Sharp Reflex",
-        "desc": "Add +10% critical chance."
+      "comboDrive": {
+        "name": "Combo Drive",
+        "desc": "Combo window +0.5s and instant Happy +5%."
       },
-      "perfect_pounce": {
-        "name": "Perfect Pounce",
-        "desc": "Boost critical multiplier by 25%."
+      "impactPalm": {
+        "name": "Impact Palm",
+        "desc": "Click power +50% and crit multiplier +0.25."
+      }
+    },
+    "engine": {
+      "dispenser": {
+        "name": "Cat Dispenser",
+        "desc": "Passive income +15%."
       },
-      "cozy_blanket": {
-        "name": "Cozy Blanket",
-        "desc": "Increase passive income by 25%."
+      "nightWatch": {
+        "name": "Night Watch",
+        "desc": "Passive income +20% and instant Happy +4%."
       },
-      "long_play": {
-        "name": "Long Play Session",
-        "desc": "Extend skill duration by +3 seconds."
+      "resonanceTower": {
+        "name": "Resonance Tower",
+        "desc": "Passive income +25%; clicks extend active skills by +0.02s."
+      }
+    },
+    "luck": {
+      "luckyWhisker": {
+        "name": "Lucky Whisker",
+        "desc": "Crit chance +10% and crit multiplier +0.2."
       },
-      "focused_spirit": {
-        "name": "Focused Spirit",
-        "desc": "Reduce skill cooldown by 20%."
+      "critBattery": {
+        "name": "Crit Battery",
+        "desc": "Crit chance +5% and crit multiplier +0.3."
       },
-      "lucky_cache": {
-        "name": "Lucky Cache",
-        "desc": "Gain a burst of Happy immediately."
+      "jackpot": {
+        "name": "Jackpot Cache",
+        "desc": "Instant Happy +12%."
+      }
+    },
+    "tempo": {
+      "resonancePalm": {
+        "name": "Resonance Palm",
+        "desc": "Clicks extend running skills by +0.05s."
       },
-      "boss_instinct": {
-        "name": "Boss Instinct",
-        "desc": "Clicks deal 30% more damage during boss fights."
+      "cdTuner": {
+        "name": "CD Tuner",
+        "desc": "Skill cooldowns x0.90."
       },
-      "shoployalty": {
-        "name": "Shop Loyalty",
-        "desc": "All shop prices are reduced by 10%."
+      "cycleRush": {
+        "name": "Cycle Rush",
+        "desc": "Skill cooldowns x0.92 and click power +20%."
+      }
+    },
+    "utility": {
+      "emberFur": {
+        "name": "Ember Fur",
+        "desc": "Damage over time x1.25."
       },
-      "fast_paws": {
-        "name": "Fast Paws",
-        "desc": "Increase click power by 20%."
+      "frostPaw": {
+        "name": "Frost Paw",
+        "desc": "Enemy cast speed -12%."
       },
-      "steady_rhythm": {
-        "name": "Steady Rhythm",
-        "desc": "Passive income +15% and click power +10%."
+      "hexShadow": {
+        "name": "Hex Shadow",
+        "desc": "Damage over time x1.35 and enemy cast speed -8%."
       }
     }
   },
@@ -317,11 +371,60 @@
     },
     "toast": {
       "purchased": "Bought {{name}}!"
+    },
+    "burst": {
+      "clickBase": {
+        "name": "Impact Fundamentals",
+        "desc": "Each level multiplies click power by 1.05."
+      },
+      "critDrive": {
+        "name": "Critical Drive",
+        "desc": "Each level adds +0.10 crit multiplier."
+      }
+    },
+    "engine": {
+      "hub": {
+        "name": "Production Hub",
+        "desc": "Each level multiplies passive income by 1.04."
+      },
+      "warmup": {
+        "name": "Warm-Up Cycle",
+        "desc": "Each level adds +3% instant Happy."
+      }
+    },
+    "luck": {
+      "focus": {
+        "name": "Focus Charm",
+        "desc": "Each level adds +2% crit chance."
+      },
+      "overflow": {
+        "name": "Overflow Charge",
+        "desc": "Each level adds +0.15 crit multiplier."
+      }
+    },
+    "tempo": {
+      "stability": {
+        "name": "Stability Matrix",
+        "desc": "Each level multiplies skill cooldowns by 0.96."
+      },
+      "reservoir": {
+        "name": "Resonance Reservoir",
+        "desc": "Each level adds +0.01s to click-based extensions."
+      }
+    },
+    "utility": {
+      "hexWeave": {
+        "name": "Hex Weave",
+        "desc": "Each level multiplies DoT damage by 1.06."
+      },
+      "stasis": {
+        "name": "Stasis Field",
+        "desc": "Each level adds +0.04 enemy cast slow."
+      }
     }
   },
   "toast": {
     "saved": "Progress saved!",
-    "reward": "You gained {{card}}.",
     "copied": "Copied to clipboard."
   },
   "log": {

@@ -1,4 +1,4 @@
-{
+﻿{
   "app": {
     "title": "Purrfect Clicker",
     "subtitle": "終わりなき癒やしのローグライク"
@@ -231,56 +231,9 @@
     }
   },
   "reward": {
-    "title": "報酬カードを選択",
+    "title": "報酬を選ぶ",
     "helper": "選んだ効果はラン終了まで持続します。",
-    "button": "このカードを取る",
-    "toast": "{{card}} を獲得しました！",
-    "cards": {
-      "claw_training": {
-        "name": "爪トレーニング",
-        "desc": "なで力が 50% 上昇します。"
-      },
-      "sharp_reflex": {
-        "name": "鋭い反射神経",
-        "desc": "クリ率が +10% 上昇します。"
-      },
-      "perfect_pounce": {
-        "name": "完璧な飛びかかり",
-        "desc": "クリ倍率が 25% 上昇します。"
-      },
-      "cozy_blanket": {
-        "name": "ぬくぬく毛布",
-        "desc": "毎秒ハッピーが 25% 上昇します。"
-      },
-      "long_play": {
-        "name": "ながらタイム",
-        "desc": "スキル持続が +3 秒されます。"
-      },
-      "focused_spirit": {
-        "name": "集中のこころ",
-        "desc": "スキルのクールダウンを 20% 短縮します。"
-      },
-      "lucky_cache": {
-        "name": "ラッキーストック",
-        "desc": "即座にハッピーを大量獲得します。"
-      },
-      "boss_instinct": {
-        "name": "ボス本能",
-        "desc": "ボス戦中のクリックダメージが 30% 上昇します。"
-      },
-      "shoployalty": {
-        "name": "ショップロイヤリティ",
-        "desc": "すべてのショップ価格が 10% 割引されます。"
-      },
-      "fast_paws": {
-        "name": "すばやい前足",
-        "desc": "なで力が 20% 上昇します。"
-      },
-      "steady_rhythm": {
-        "name": "こつこつリズム",
-        "desc": "毎秒ハッピー +15%、なで力 +10%。"
-      }
-    }
+    "button": "このカードを受け取る"
   },
   "summary": {
     "titleCleared": "ラン達成！",
@@ -317,11 +270,60 @@
     },
     "toast": {
       "purchased": "{{name}} を購入しました！"
+    },
+    "burst": {
+      "clickBase": {
+        "name": "衝撃基礎",
+        "desc": "レベル毎にクリック威力を1.05倍。"
+      },
+      "critDrive": {
+        "name": "クリティカル推進",
+        "desc": "レベル毎にクリ倍率+0.10。"
+      }
+    },
+    "engine": {
+      "hub": {
+        "name": "生産ハブ",
+        "desc": "レベル毎にPPSを1.04倍。"
+      },
+      "warmup": {
+        "name": "ウォームアップ",
+        "desc": "レベル毎に即時ハッピー+3%。"
+      }
+    },
+    "luck": {
+      "focus": {
+        "name": "フォーカスチャーム",
+        "desc": "レベル毎にクリ率+2%。"
+      },
+      "overflow": {
+        "name": "オーバーフロー",
+        "desc": "レベル毎にクリ倍率+0.15。"
+      }
+    },
+    "tempo": {
+      "stability": {
+        "name": "安定マトリクス",
+        "desc": "レベル毎にスキル再使用時間x0.96。"
+      },
+      "reservoir": {
+        "name": "共鳴の貯蔵槽",
+        "desc": "レベル毎にクリック延長+0.01秒。"
+      }
+    },
+    "utility": {
+      "hexWeave": {
+        "name": "ヘクスウィーブ",
+        "desc": "レベル毎にDoT倍率x1.06。"
+      },
+      "stasis": {
+        "name": "ステイシスフィールド",
+        "desc": "レベル毎に敵詠唱遅延+0.04。"
+      }
     }
   },
   "toast": {
     "saved": "セーブしました！",
-    "reward": "{{card}} を手に入れました。",
     "copied": "クリップボードにコピーしました。"
   },
   "log": {
@@ -334,5 +336,106 @@
   "settings": {
     "title": "設定",
     "comingSoon": "さらなるオプションは今後のアップデートで追加予定です。"
+  },
+  "build": {
+    "select": {
+      "title": "育成の方針を選ぶ",
+      "helper": "以降の報酬抽選に重みが掛かります。後で選ぶことも可能です。",
+      "choose": "この方針で進む",
+      "skip": "今はスキップ"
+    },
+    "reward": {
+      "toast": "{{archetype}} に {{bonus}} を獲得！",
+      "focus": "優先",
+      "tier": "ティア{{tier}}"
+    },
+    "badge": {
+      "none": "方針なし",
+      "tooltipTitle": "取得ボーナス"
+    },
+    "archetype": {
+      "burst": "クリック特化",
+      "engine": "自動PPS特化",
+      "luck": "クリティカル特化",
+      "tempo": "スキル連携",
+      "utility": "状態/妨害"
+    },
+    "archetypeDesc": {
+      "burst": "瞬間火力と連打で一気に稼ぐタイプ。",
+      "engine": "放置でも稼げるエンジンを強化。",
+      "luck": "クリ率と倍率を積み上げてジャックポット狙い。",
+      "tempo": "スキル回転と延長でテンポを維持。",
+      "utility": "DoTと妨害で敵をコントロール。"
+    },
+    "burst": {
+      "doubleTap": {
+        "name": "二連なで",
+        "desc": "クリック威力+35%。"
+      },
+      "comboDrive": {
+        "name": "コンボドライブ",
+        "desc": "コンボ猶予+0.5秒、即時ハッピー+5%。"
+      },
+      "impactPalm": {
+        "name": "インパクトパーム",
+        "desc": "クリック威力+50%、クリ倍率+0.25。"
+      }
+    },
+    "engine": {
+      "dispenser": {
+        "name": "ネコディスペンサー",
+        "desc": "PPS+15%。"
+      },
+      "nightWatch": {
+        "name": "ナイトウォッチ",
+        "desc": "PPS+20%、即時ハッピー+4%。"
+      },
+      "resonanceTower": {
+        "name": "共鳴タワー",
+        "desc": "PPS+25%、クリックで発動中スキル+0.02秒。"
+      }
+    },
+    "luck": {
+      "luckyWhisker": {
+        "name": "幸運のひげ",
+        "desc": "クリ率+10%、クリ倍率+0.2。"
+      },
+      "critBattery": {
+        "name": "クリバッテリー",
+        "desc": "クリ率+5%、クリ倍率+0.3。"
+      },
+      "jackpot": {
+        "name": "ジャックポット",
+        "desc": "即時ハッピー+12%。"
+      }
+    },
+    "tempo": {
+      "resonancePalm": {
+        "name": "共鳴の掌",
+        "desc": "クリック時、発動中スキルを+0.05秒延長。"
+      },
+      "cdTuner": {
+        "name": "CDチューナー",
+        "desc": "スキル再使用時間x0.90。"
+      },
+      "cycleRush": {
+        "name": "サイクルラッシュ",
+        "desc": "スキル再使用時間x0.92、クリック威力+20%。"
+      }
+    },
+    "utility": {
+      "emberFur": {
+        "name": "炎の毛玉",
+        "desc": "DoT倍率x1.25。"
+      },
+      "frostPaw": {
+        "name": "フロストポー",
+        "desc": "敵詠唱速度-12%。"
+      },
+      "hexShadow": {
+        "name": "ヘクスシャドウ",
+        "desc": "DoT倍率x1.35、敵詠唱速度-8%。"
+      }
+    }
   }
 }

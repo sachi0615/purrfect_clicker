@@ -1,25 +1,32 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-import { getRewardCard } from '../data/cards';
-import { pushToast } from '../store/toast';
+import { getRewardBonus, getRewardCard } from '../data/cards';
 import { useRunStore } from '../store/run';
+import { BUILD_ARCHETYPE_INFO, useBuildStore } from '../store/build';
+import { pushToast } from '../store/toast';
 
 export function RewardPicker() {
   const { t } = useTranslation();
   const showReward = useRunStore((state) => state.showReward);
   const rewardChoices = useRunStore((state) => state.rewardChoices);
   const applyReward = useRunStore((state) => state.applyReward);
+  const activeArchetype = useBuildStore((state) => state.activeArchetype);
 
   if (!showReward) {
     return null;
   }
 
   const handleSelect = (cardId: string) => {
+    const bonus = getRewardBonus(cardId);
     const card = getRewardCard(cardId);
-    const cardName = t(`reward.cards.${card.id}.name`, { defaultValue: card.name });
     applyReward(cardId);
-    pushToast(t('reward.toast', { card: cardName }), 'success');
+    const archetypeLabel = t(BUILD_ARCHETYPE_INFO[bonus.archetype].titleKey);
+    const cardName = t(bonus.nameKey);
+    pushToast(
+      t('build.reward.toast', { archetype: archetypeLabel, bonus: cardName }),
+      'success',
+    );
   };
 
   return (
@@ -39,10 +46,11 @@ export function RewardPicker() {
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {rewardChoices.map((id) => {
             const card = getRewardCard(id);
-            const name = t(`reward.cards.${card.id}.name`, { defaultValue: card.name });
-            const description = t(`reward.cards.${card.id}.desc`, {
-              defaultValue: card.desc,
-            });
+            const bonus = getRewardBonus(id);
+            const info = BUILD_ARCHETYPE_INFO[card.archetype];
+            const name = t(bonus.nameKey);
+            const description = t(bonus.descKey);
+            const isFocus = activeArchetype && activeArchetype === card.archetype;
             return (
               <motion.button
                 whileHover={{ y: -6, scale: 1.02 }}
@@ -50,17 +58,35 @@ export function RewardPicker() {
                 type="button"
                 key={card.id}
                 onClick={() => handleSelect(card.id)}
-                className="flex h-full flex-col items-start gap-3 rounded-2xl border border-plum-200 bg-plum-50/70 p-4 text-left shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum-300 hover:border-plum-400 hover:bg-white md:p-5"
+                className="flex h-full flex-col items-start gap-3 rounded-2xl border border-plum-200 bg-white/90 p-4 text-left shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum-300 hover:border-transparent hover:shadow-xl md:p-5"
                 aria-label={`${t('reward.title')}: ${name}`}
               >
-                <span className="text-xs font-semibold uppercase tracking-wide text-plum-400 md:text-sm">
-                  {card.id}
+                <span
+                  className={[
+                    'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide md:text-sm',
+                    info.badgeRing,
+                    'border-transparent bg-gradient-to-r text-white shadow',
+                    info.gradientFrom,
+                    info.gradientTo,
+                  ].join(' ')}
+                >
+                  {t(info.titleKey)}
+                  {isFocus ? (
+                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[0.65rem] font-bold">
+                      {t('build.reward.focus')}
+                    </span>
+                  ) : null}
                 </span>
                 <span className="text-lg font-semibold text-plum-900 md:text-xl">{name}</span>
                 <span className="text-sm text-plum-600 md:text-base">{description}</span>
-                <span className="mt-auto inline-flex items-center rounded-full bg-plum-500/10 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
-                  {t('reward.button')}
-                </span>
+                <div className="mt-auto flex w-full items-center justify-between">
+                  <span className="rounded-full bg-plum-100 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
+                    {t('build.reward.tier', { tier: card.tier })}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-plum-500/10 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
+                    {t('reward.button')}
+                  </span>
+                </div>
               </motion.button>
             );
           })}

@@ -5,6 +5,7 @@ import { ClickPad } from './components/ClickPad';
 import { SkillBar } from './components/SkillBar';
 import { MetaPanel } from './components/MetaPanel';
 import { RewardPicker } from './components/RewardPicker';
+import { BuildSelect } from './components/BuildSelect';
 import { RunSummary } from './components/RunSummary';
 import { ShopPanel } from './components/ShopPanel';
 import { SkillToasts } from './components/SkillToasts';
@@ -63,6 +64,7 @@ export default function App() {
       <ToastStack />
       <SkillToasts />
       <CharacterSelect />
+      <BuildSelect />
       <BossModal />
       <RewardPicker />
       <RunSummary />

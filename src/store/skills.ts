@@ -10,6 +10,7 @@ import {
   META_COOLDOWN_REDUCTION_PER_LEVEL,
   META_DURATION_PER_LEVEL,
 } from '../data/metaUpgrades';
+import { useBuildStore } from './build';
 
 export type SkillId =
   | 'cheerful'
@@ -66,6 +67,7 @@ type SkillsState = {
   tick: (now: number) => void;
   resetAll: () => void;
   setRunModifiers: (mods: SkillRuntimeModifiers) => void;
+  extendRunning: (seconds: number) => void;
 };
 
 export type SkillAggregates = {
@@ -278,10 +280,13 @@ function ensureRuntime(
 
 function extractRuntimeModifiers(tempMods?: TempMods | null): SkillRuntimeModifiers {
   const charMods = getCharacterPassiveMods();
+  const buildMultipliers = useBuildStore.getState().getFinalMultipliers();
   const durationBonus =
     (charMods.skillDurationPlus ?? 0) + (tempMods?.skillDurationPlus ?? 0);
   const cooldownMultRaw =
-    (charMods.skillCdMult ?? 1) * (tempMods?.skillCdMult ?? 1);
+    (charMods.skillCdMult ?? 1) *
+    (tempMods?.skillCdMult ?? 1) *
+    (buildMultipliers.skillCdMult ?? 1);
   const cooldownMult = cooldownMultRaw <= 0 ? 0.1 : cooldownMultRaw;
   return {
     durationBonus,
@@ -354,6 +359,34 @@ const createSkillsStore = persist<SkillsState, [], [], Pick<SkillsState, 'rt'>>(
             [id]: nextRuntime,
           },
         }));
+      },
+      extendRunning: (seconds) => {
+        if (seconds <= 0) {
+          return;
+        }
+        set((current) => {
+          const now = Date.now();
+          let changed = false;
+          const updated: Record<SkillId, SkillRuntime> = { ...current.rt };
+          current.skillIds.forEach((id) => {
+            const runtime = current.rt[id];
+            if (!runtime || runtime.runningUntil <= now) {
+              return;
+            }
+            changed = true;
+            updated[id] = {
+              ...runtime,
+              runningUntil: runtime.runningUntil + seconds * 1000,
+            };
+          });
+          if (!changed) {
+            return current;
+          }
+          return {
+            ...current,
+            rt: updated,
+          };
+        });
       },
       tick: (now) => {
         set((current) => {

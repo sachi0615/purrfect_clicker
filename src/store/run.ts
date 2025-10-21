@@ -4,8 +4,8 @@ import { persist } from 'zustand/middleware';
 
 import { fmt } from '../lib/format';
 import i18n from '../i18n';
-import { createRng, normalizedSeedFrom, shuffleInPlace } from '../lib/rng';
-import { getRewardCard } from '../data/cards';
+import { createRng, normalizedSeedFrom } from '../lib/rng';
+import { getRewardBonus, getRewardCard } from '../data/cards';
 import { generateStages } from '../data/stages';
 import { getShopItem } from '../data/shopItems';
 import { getCharacterPassiveMods, runCharacterOnStart, useCharsStore } from './chars';
@@ -15,6 +15,7 @@ import {
   syncSkillRunModifiers,
   useSkillsStore,
 } from './skills';
+import { type BuildArchetype, useBuildStore } from './build';
 import type {
   FloatingText,
   RewardCardId,
@@ -75,6 +76,7 @@ export const useRunStore = create<RunStore>()(
         }
         const run = createRun(nextSeed, selectedId);
         runCharacterOnStart(run, (patch) => Object.assign(run, patch));
+        useBuildStore.getState().resetRunBuild();
         set({
           run,
           rewardChoices: [],
@@ -99,10 +101,15 @@ export const useRunStore = create<RunStore>()(
         useSkillsStore.getState().tick(now);
         const aggregates = getSkillAggregates(now);
         const charMods = getCharacterPassiveMods(state.run.characterId);
+        const buildMultipliers = useBuildStore.getState().getFinalMultipliers();
         const ppsMult =
-          (state.run.tempMods.ppsMult ?? 1) * aggregates.ppsMult * (charMods.ppsMult ?? 1);
+          (state.run.tempMods.ppsMult ?? 1) *
+          aggregates.ppsMult *
+          (charMods.ppsMult ?? 1) *
+          buildMultipliers.ppsMult;
         const effectiveDt = dt * aggregates.tickRateFactor;
-        const gain = state.run.pps * ppsMult * effectiveDt;
+        const baseGain = state.run.pps * ppsMult * effectiveDt;
+        const gain = baseGain * (1 + buildMultipliers.instantHappyPlus);
         set((current) => {
           const existingRun = current.run;
           if (!existingRun) {
@@ -128,7 +135,11 @@ export const useRunStore = create<RunStore>()(
         }
         const now = Date.now();
         useSkillsStore.getState().tick(now);
-        const outcome = computeClickOutcome(state.run, { boss: false }, now);
+        const buildMultipliers = useBuildStore.getState().getFinalMultipliers();
+        const outcome = computeClickOutcome(state.run, { boss: false }, now, buildMultipliers);
+        if (buildMultipliers.skillExtendPerClick > 0) {
+          useSkillsStore.getState().extendRunning(buildMultipliers.skillExtendPerClick);
+        }
         set((current) => {
           const existingRun = current.run;
           if (!existingRun) {
@@ -163,28 +174,20 @@ export const useRunStore = create<RunStore>()(
         }
 
         const card = getRewardCard(cardId);
-        let bonusHappy = 0;
+        const bonus = getRewardBonus(cardId);
 
         set((current) => {
           const existingRun = current.run;
           if (!existingRun) {
             return current;
           }
+          const nextMods = card.apply
+            ? card.apply({ ...existingRun.tempMods })
+            : { ...existingRun.tempMods };
           const run: RunState = {
             ...existingRun,
-            tempMods: card.apply({ ...existingRun.tempMods }),
+            tempMods: nextMods,
           };
-
-          if (card.id === 'lucky_cache') {
-            const stage = existingRun.stageIndex < existingRun.stages.length
-              ? existingRun.stages[existingRun.stageIndex]
-              : null;
-            const basis =
-              stage?.goalHappy ??
-              (stage?.boss?.rewardHappy ?? Math.max(run.happy, 300));
-            bonusHappy = Math.floor(basis * 0.4);
-            run.happy += bonusHappy;
-          }
 
           return {
             ...current,
@@ -197,13 +200,10 @@ export const useRunStore = create<RunStore>()(
         });
 
         const updatedRun = get().run;
+        useBuildStore.getState().addBonus(bonus);
         syncSkillRunModifiers(updatedRun?.tempMods);
 
         advanceStage();
-        if (bonusHappy > 0) {
-          // Ensure stage completion after bonus gain.
-          get().checkStageCompletion();
-        }
       },
       openBoss: () => {
         const { run } = get();
@@ -228,7 +228,11 @@ export const useRunStore = create<RunStore>()(
 
         const now = Date.now();
         useSkillsStore.getState().tick(now);
-        const outcome = computeClickOutcome(state.run, { boss: true }, now);
+        const buildMultipliers = useBuildStore.getState().getFinalMultipliers();
+        const outcome = computeClickOutcome(state.run, { boss: true }, now, buildMultipliers);
+        if (buildMultipliers.skillExtendPerClick > 0) {
+          useSkillsStore.getState().extendRunning(buildMultipliers.skillExtendPerClick);
+        }
         let defeated = false;
         set((current) => {
           const existingRun = current.run;
@@ -327,6 +331,11 @@ export const useRunStore = create<RunStore>()(
 
         const rewardSouls = Math.max(1, stagesCleared);
         useMetaStore.getState().addSouls(rewardSouls);
+        useBuildStore.setState((state) => ({
+          ...state,
+          catSouls: state.catSouls + rewardSouls,
+        }));
+        useBuildStore.getState().resetRunBuild();
       },
       buyShopItem: (itemId) => {
         const state = get();
@@ -467,12 +476,16 @@ function computeClickOutcome(
   run: RunState,
   options: { boss: boolean },
   timestamp = Date.now(),
+  buildMultipliers = useBuildStore.getState().getFinalMultipliers(),
 ): { gain: number; crit: boolean; bonusHappy: number } {
   const aggregates = getSkillAggregates(timestamp);
   const charMods = getCharacterPassiveMods(run.characterId);
   const base = run.clickPower;
   const clickMult =
-    (run.tempMods.clickMult ?? 1) * aggregates.clickMult * (charMods.clickMult ?? 1);
+    (run.tempMods.clickMult ?? 1) *
+    aggregates.clickMult *
+    (charMods.clickMult ?? 1) *
+    buildMultipliers.clickMult;
   let gain = base * clickMult;
 
   if (options.boss) {
@@ -482,13 +495,15 @@ function computeClickOutcome(
   const critChance = clamp01(
     (run.tempMods.critChance ?? 0) +
       aggregates.critChancePlus +
-      (charMods.critChancePlus ?? 0),
+      (charMods.critChancePlus ?? 0) +
+      buildMultipliers.critChancePlus,
   );
   const critMult = Math.max(
     1,
     (run.tempMods.critMult ?? 2) +
       aggregates.critMultPlus +
-      (charMods.critMultPlus ?? 0),
+      (charMods.critMultPlus ?? 0) +
+      buildMultipliers.critMultPlus,
   );
   const crit = Math.random() < critChance;
   if (crit) {
@@ -497,7 +512,8 @@ function computeClickOutcome(
     gain *= charMods.nonCritMultiplier;
   }
 
-  const bonusHappy = crit ? gain * (charMods.critHappyBonus ?? 0) : 0;
+  const instantBonus = gain * buildMultipliers.instantHappyPlus;
+  const bonusHappy = (crit ? gain * (charMods.critHappyBonus ?? 0) : 0) + instantBonus;
 
   return { gain, crit, bonusHappy };
 }
@@ -537,7 +553,13 @@ function prepareRewardChoices() {
     return;
   }
   const stage = run.stages[run.stageIndex];
-  const choices = pickRewardChoices(run.seed, run.stageIndex, stage.rewardPool);
+  const activeArchetype = useBuildStore.getState().activeArchetype;
+  const choices = pickRewardChoices(
+    run.seed,
+    run.stageIndex,
+    stage.rewardPool,
+    activeArchetype,
+  );
   useRunStore.setState({
     showReward: true,
     rewardChoices: choices,
@@ -577,22 +599,56 @@ function pickRewardChoices(
   seed: number,
   stageIndex: number,
   pool: RewardCardId[],
+  focus: BuildArchetype | undefined,
 ): RewardCardId[] {
-  const working = [...pool];
   const rng = createRng(normalizedSeedFrom(seed, stageIndex, 0xabc98388));
-  shuffleInPlace(rng, working);
-  if (working.length >= 3) {
-    return working.slice(0, 3);
+  const weighted = pool
+    .map((id) => {
+      const card = getRewardCard(id);
+      const weight = computeCardWeight(card.tier, card.archetype, focus);
+      return weight > 0 ? { id: card.id, weight } : null;
+    })
+    .filter((value): value is { id: RewardCardId; weight: number } => Boolean(value));
+
+  if (weighted.length === 0) {
+    return pool.slice(0, 3);
   }
-  const fallback = [...working];
-  while (working.length < 3) {
-    fallback.forEach((id) => {
-      if (working.length < 3) {
-        working.push(id);
+
+  const selections: RewardCardId[] = [];
+  const working = [...weighted];
+  const desired = Math.min(3, working.length);
+
+  for (let pickIndex = 0; pickIndex < desired; pickIndex += 1) {
+    const totalWeight = working.reduce((sum, entry) => sum + entry.weight, 0);
+    if (totalWeight <= 0) {
+      selections.push(working.shift()?.id ?? weighted[0].id);
+      continue;
+    }
+    let roll = rng.next() * totalWeight;
+    let chosen = 0;
+    for (let i = 0; i < working.length; i += 1) {
+      roll -= working[i].weight;
+      if (roll <= 0) {
+        chosen = i;
+        break;
       }
-    });
+      if (i === working.length - 1) {
+        chosen = i;
+      }
+    }
+    const [entry] = working.splice(chosen, 1);
+    selections.push(entry.id);
   }
-  return working.slice(0, 3);
+
+  while (selections.length < 3) {
+    const duplicate = selections[selections.length % Math.max(1, selections.length)];
+    if (!duplicate) {
+      break;
+    }
+    selections.push(duplicate);
+  }
+
+  return selections.slice(0, 3);
 }
 
 function clamp01(value: number): number {
@@ -601,4 +657,22 @@ function clamp01(value: number): number {
 
 function clampLow(value: number, min: number): number {
   return Math.max(min, value);
+}
+
+const TIER_WEIGHTS: Record<1 | 2 | 3, number> = {
+  1: 1,
+  2: 0.65,
+  3: 0.35,
+};
+
+function computeCardWeight(
+  tier: 1 | 2 | 3,
+  archetype: BuildArchetype,
+  focus: BuildArchetype | undefined,
+): number {
+  let weight = TIER_WEIGHTS[tier];
+  if (focus && focus === archetype) {
+    weight *= 1.5;
+  }
+  return weight;
 }

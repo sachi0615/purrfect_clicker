@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Cat, Cog, Save } from 'lucide-react';
 
 import { pushToast } from '../store/toast';
-import { LanguageSwitch } from './LanguageSwitch';
 import { CharacterBadge } from './CharacterBadge';
+import { LanguageSwitch } from './LanguageSwitch';
+import { BuildBadge } from './BuildBadge';
 
 export function TopBar() {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ export function TopBar() {
       </div>
       <div className="flex flex-wrap items-center gap-3 md:gap-4">
         <CharacterBadge />
+        <BuildBadge />
         <LanguageSwitch />
         <button
           type="button"

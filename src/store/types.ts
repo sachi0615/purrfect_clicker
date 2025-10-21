@@ -11,11 +11,14 @@ export type TempMods = {
 
 export type RewardCardId = string;
 
+type BuildArchetype = import('../store/build').BuildArchetype;
+
 export type RewardCard = {
   id: RewardCardId;
-  name: string;
-  desc: string;
-  apply: (mods: TempMods) => TempMods;
+  bonusId: string;
+  archetype: BuildArchetype;
+  tier: 1 | 2 | 3;
+  apply?: (mods: TempMods) => TempMods;
 };
 
 export type Enemy = {
