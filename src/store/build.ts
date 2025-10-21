@@ -20,6 +20,8 @@ type FinalMultipliers = {
   dotMult: number;
   enemyCastSlow: number;
   instantHappyPlus: number;
+  bossDamageMult: number;
+  drainResist: number;
 };
 
 export type BuildState = {
@@ -41,6 +43,7 @@ const MULTIPLICATIVE_KEYS: Array<keyof NonNullable<BuildBonus['effects']>> = [
   'ppsMult',
   'skillCdMult',
   'dotMult',
+  'bossDamageMult',
 ];
 
 const ADDITIVE_KEYS: Array<keyof NonNullable<BuildBonus['effects']>> = [
@@ -50,6 +53,7 @@ const ADDITIVE_KEYS: Array<keyof NonNullable<BuildBonus['effects']>> = [
   'skillExtendPerClick',
   'enemyCastSlow',
   'instantHappyPlus',
+  'drainResist',
 ];
 
 const initialMetaNodes = createInitialMetaNodes();
@@ -204,6 +208,8 @@ export const useBuildStore = create<BuildState>()(
           dotMult: multiplyAll(1, fromMeta.dotMult, fromBuild.dotMult),
           enemyCastSlow: addAll(0, fromMeta.enemyCastSlow, fromBuild.enemyCastSlow),
           instantHappyPlus: addAll(0, fromMeta.instantHappyPlus, fromBuild.instantHappyPlus),
+          bossDamageMult: multiplyAll(1, fromMeta.bossDamageMult, fromBuild.bossDamageMult),
+          drainResist: addAll(0, fromMeta.drainResist, fromBuild.drainResist),
         };
       },
       resetRunBuild: () => {

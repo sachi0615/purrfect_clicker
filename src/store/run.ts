@@ -22,6 +22,7 @@ import type {
   RunState,
   RunSummary,
   Stage,
+  Enemy,
 } from './types';
 
 type RunStore = {
@@ -234,6 +235,7 @@ export const useRunStore = create<RunStore>()(
           useSkillsStore.getState().extendRunning(buildMultipliers.skillExtendPerClick);
         }
         let defeated = false;
+        let adjustedDamage = outcome.gain;
         set((current) => {
           const existingRun = current.run;
           if (!existingRun) {
@@ -243,13 +245,24 @@ export const useRunStore = create<RunStore>()(
           if (!activeStage || activeStage.kind !== 'boss' || !activeStage.boss) {
             return current;
           }
+          const drainResist = clamp01(
+            (buildMultipliers.drainResist ?? 0) + (existingRun.tempMods.drainResist ?? 0),
+          );
+          const specialResolution = resolveBossSpecials(
+            activeStage.boss,
+            existingRun,
+            now,
+            drainResist,
+          );
+          const adjustedGain = outcome.gain * specialResolution.damageMult;
+          adjustedDamage = adjustedGain;
           const bossBefore = activeStage.boss.hp;
-          const bossAfter = Math.max(0, bossBefore - outcome.gain);
+          const bossAfter = Math.max(0, bossBefore - adjustedGain);
           if (bossAfter === 0 && bossBefore > 0) {
             defeated = true;
           }
           const updatedBoss = {
-            ...activeStage.boss,
+            ...specialResolution.boss,
             hp: bossAfter,
           };
           const stages: Stage[] = existingRun.stages.map((s, index) =>
@@ -258,9 +271,11 @@ export const useRunStore = create<RunStore>()(
               : s,
           );
 
+          const drainedHappy = Math.min(existingRun.happy, specialResolution.happyDrain);
+          const totalGain = adjustedGain + outcome.bonusHappy;
           const floatingTexts = appendFloatingText(
             decayFloatingTexts(current.floatingTexts, 0),
-            outcome.gain + outcome.bonusHappy,
+            totalGain,
             outcome.crit,
           );
 
@@ -270,10 +285,13 @@ export const useRunStore = create<RunStore>()(
               ...existingRun,
               stages,
               happy:
-                existingRun.happy +
-                outcome.gain +
-                outcome.bonusHappy +
-                (defeated ? activeStage.boss.rewardHappy : 0),
+                Math.max(
+                  0,
+                  existingRun.happy -
+                    drainedHappy +
+                    totalGain +
+                    (defeated ? activeStage.boss.rewardHappy : 0),
+                ),
               totalPets: existingRun.totalPets + 1,
             },
             floatingTexts,
@@ -284,7 +302,7 @@ export const useRunStore = create<RunStore>()(
           set({ bossOpen: false });
         }
         get().checkStageCompletion();
-        return outcome.gain;
+        return adjustedDamage;
       },
       closeBoss: () => {
         set({ bossOpen: false });
@@ -355,6 +373,13 @@ export const useRunStore = create<RunStore>()(
           if (!existingRun) {
             return current;
           }
+          const stageIndex = Math.min(
+            existingRun.stageIndex,
+            Math.max(0, existingRun.stages.length - 1),
+          );
+          const loopDepth = existingRun.stages[stageIndex]?.loop ?? 0;
+          const gainPenalty = Math.max(0.45, 1 - loopDepth * 0.18);
+          const scaledGain = item.gain * gainPenalty;
           const updatedLevels = {
             ...current.shopLevels,
             [itemId]: level + 1,
@@ -364,11 +389,11 @@ export const useRunStore = create<RunStore>()(
             happy: existingRun.happy - price,
             clickPower:
               item.type === 'click'
-                ? existingRun.clickPower + item.gain
+                ? existingRun.clickPower + scaledGain
                 : existingRun.clickPower,
             pps:
               item.type === 'pps'
-                ? existingRun.pps + item.gain
+                ? existingRun.pps + scaledGain
                 : existingRun.pps,
           };
           return {
@@ -489,7 +514,11 @@ function computeClickOutcome(
   let gain = base * clickMult;
 
   if (options.boss) {
-    gain *= (run.tempMods.bossClickMult ?? 1) * (charMods.bossTakenMult ?? 1);
+    const bossClickMult = run.tempMods.bossClickMult ?? 1;
+    const bossDamageMult = run.tempMods.bossDamageMult ?? 1;
+    const charBossMult = charMods.bossTakenMult ?? 1;
+    const buildBossMult = buildMultipliers.bossDamageMult ?? 1;
+    gain *= bossClickMult * bossDamageMult * charBossMult * buildBossMult;
   }
 
   const critChance = clamp01(
@@ -649,6 +678,79 @@ function pickRewardChoices(
   }
 
   return selections.slice(0, 3);
+}
+
+type BossSpecialResolution = {
+  boss: Enemy;
+  damageMult: number;
+  happyDrain: number;
+};
+
+function resolveBossSpecials(
+  boss: Enemy,
+  run: RunState,
+  timestamp: number,
+  drainResist: number,
+): BossSpecialResolution {
+  if (!boss.specials || boss.specials.length === 0) {
+    return {
+      boss,
+      damageMult: boss.damageTakenMult ?? 1,
+      happyDrain: 0,
+    };
+  }
+
+  const resist = clamp01(drainResist);
+  let damageMult = boss.damageTakenMult ?? 1;
+  let happyDrain = 0;
+
+  const specials = boss.specials.map((special) => {
+    let activeUntil = special.activeUntil;
+    if (activeUntil && activeUntil <= timestamp) {
+      activeUntil = undefined;
+    }
+    let lastTriggeredAt = special.lastTriggeredAt;
+    let triggered = false;
+    if (lastTriggeredAt === undefined) {
+      lastTriggeredAt = timestamp;
+    } else if (timestamp - lastTriggeredAt >= special.cooldown * 1000) {
+      triggered = true;
+      lastTriggeredAt = timestamp;
+      if (special.duration > 0) {
+        activeUntil = timestamp + special.duration * 1000;
+      }
+
+      if (special.type === 'drain') {
+        const mitigated = Math.max(0, 1 - resist);
+        const rawDrain = run.happy * special.magnitude * mitigated;
+        happyDrain += rawDrain;
+      }
+    }
+
+    const barrierActive =
+      special.type === 'barrier' &&
+      ((activeUntil !== undefined && activeUntil > timestamp) ||
+        (triggered && special.duration <= 0));
+    if (barrierActive) {
+      damageMult *= special.magnitude;
+    }
+
+    return {
+      ...special,
+      activeUntil,
+      lastTriggeredAt,
+    };
+  });
+
+  return {
+    boss: {
+      ...boss,
+      specials,
+      damageTakenMult: boss.damageTakenMult,
+    },
+    damageMult,
+    happyDrain,
+  };
 }
 
 function clamp01(value: number): number {

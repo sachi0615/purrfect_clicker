@@ -30,14 +30,14 @@ const BOSS_STAGE_NAMES = [
   'Aurora Throne',
 ];
 
-const GOAL_LOOP_SCALING = 1.6;
-const GOAL_WITHIN_LOOP_SCALING = 1.3;
-const GOAL_GLOBAL_PROGRESS_SCALING = 1.18;
+const GOAL_LOOP_SCALING = 1.75;
+const GOAL_WITHIN_LOOP_SCALING = 1.34;
+const GOAL_GLOBAL_PROGRESS_SCALING = 1.24;
 const MIN_BASE_GOAL = 250;
 
 const BOSS_BASE_DIVISOR = 720;
-const BOSS_LOOP_BONUS = 0.45;
-const BOSS_ORDER_BONUS = 0.2;
+const BOSS_LOOP_BONUS = 0.6;
+const BOSS_ORDER_BONUS = 0.25;
 
 const REWARD_POOL_BASE = 5;
 const REWARD_POOL_MAX = 8;
@@ -102,7 +102,7 @@ export function generateStages(seed: number, baseClick: number, basePps: number)
         const loopBonus = 1 + loop * BOSS_LOOP_BONUS;
         const orderBonus = 1 + order * BOSS_ORDER_BONUS;
         const scaling = scalingBase * loopBonus * orderBonus;
-        const boss = pickEnemy(seed, bossCount, scaling);
+        const boss = pickEnemy(seed, bossCount, loop, scaling);
 
         const stage: Stage = {
           id: `boss_${bossCount}`,

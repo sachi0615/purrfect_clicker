@@ -7,6 +7,8 @@ export type TempMods = {
   skillCdMult?: number;
   bossClickMult?: number;
   shopDiscount?: number;
+  bossDamageMult?: number;
+  drainResist?: number;
 };
 
 export type RewardCardId = string;
@@ -27,6 +29,8 @@ export type Enemy = {
   maxHp: number;
   hp: number;
   rewardHappy: number;
+  damageTakenMult?: number;
+  specials?: EnemySpecial[];
 };
 
 export type Stage = {
@@ -38,6 +42,16 @@ export type Stage = {
   rewardPool: RewardCardId[];
   loop: number;
   order: number;
+};
+
+export type EnemySpecial = {
+  id: string;
+  type: 'barrier' | 'drain';
+  cooldown: number;
+  duration: number;
+  magnitude: number;
+  lastTriggeredAt?: number;
+  activeUntil?: number;
 };
 
 type CharacterId = import('./chars').CharacterId;

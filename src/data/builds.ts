@@ -18,6 +18,8 @@ export type BuildBonus = {
     dotMult: number;
     enemyCastSlow: number;
     instantHappyPlus: number;
+    bossDamageMult: number;
+    drainResist: number;
   }>;
 };
 
@@ -145,6 +147,27 @@ const bonuses: BuildBonus[] = [
     },
   },
   {
+    id: 'burst.barrierBreaker',
+    nameKey: 'build.burst.barrierBreaker.name',
+    descKey: 'build.burst.barrierBreaker.desc',
+    archetype: 'burst',
+    tier: 2,
+    effects: {
+      bossDamageMult: 1.2,
+    },
+  },
+  {
+    id: 'burst.relentlessPaw',
+    nameKey: 'build.burst.relentlessPaw.name',
+    descKey: 'build.burst.relentlessPaw.desc',
+    archetype: 'burst',
+    tier: 3,
+    effects: {
+      bossDamageMult: 1.35,
+      critChancePlus: 0.05,
+    },
+  },
+  {
     id: 'engine.dispenser',
     nameKey: 'build.engine.dispenser.name',
     descKey: 'build.engine.dispenser.desc',
@@ -268,6 +291,27 @@ const bonuses: BuildBonus[] = [
     effects: {
       dotMult: 1.35,
       enemyCastSlow: 0.08,
+    },
+  },
+  {
+    id: 'utility.wardingBell',
+    nameKey: 'build.utility.wardingBell.name',
+    descKey: 'build.utility.wardingBell.desc',
+    archetype: 'utility',
+    tier: 2,
+    effects: {
+      drainResist: 0.2,
+      instantHappyPlus: 0.02,
+    },
+  },
+  {
+    id: 'utility.aegisChorus',
+    nameKey: 'build.utility.aegisChorus.name',
+    descKey: 'build.utility.aegisChorus.desc',
+    archetype: 'utility',
+    tier: 3,
+    effects: {
+      drainResist: 0.35,
     },
   },
 ];

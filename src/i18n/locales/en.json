@@ -277,6 +277,14 @@
       "impactPalm": {
         "name": "Impact Palm",
         "desc": "Click power +50% and crit multiplier +0.25."
+      },
+      "barrierBreaker": {
+        "name": "Barrier Breaker",
+        "desc": "Boss damage dealt x1.2. Tailored for shielded foes."
+      },
+      "relentlessPaw": {
+        "name": "Relentless Paw",
+        "desc": "Boss damage dealt x1.35 and crit chance +5%."
       }
     },
     "engine": {
@@ -333,6 +341,14 @@
       "hexShadow": {
         "name": "Hex Shadow",
         "desc": "Damage over time x1.35 and enemy cast speed -8%."
+      },
+      "wardingBell": {
+        "name": "Warding Bell",
+        "desc": "Reduces boss drain effects by 20% and grants +2% instant Happy."
+      },
+      "aegisChorus": {
+        "name": "Aegis Chorus",
+        "desc": "Reduces boss drain effects by 35%."
       }
     }
   },

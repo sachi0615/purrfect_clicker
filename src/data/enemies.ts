@@ -1,4 +1,4 @@
-import type { Enemy } from '../store/types';
+import type { Enemy, EnemySpecial } from '../store/types';
 import { createRng, normalizedSeedFrom } from '../lib/rng';
 
 type EnemyTemplate = {
@@ -19,6 +19,7 @@ const ENEMY_TEMPLATES: EnemyTemplate[] = [
 export function pickEnemy(
   seed: number,
   difficultyIndex: number,
+  loop: number,
   scaling: number,
 ): Enemy {
   const rng = createRng(normalizedSeedFrom(seed, difficultyIndex));
@@ -26,11 +27,46 @@ export function pickEnemy(
   const variance = 0.85 + rng.next() * 0.3; // 0.85 - 1.15
   const maxHp = Math.floor(template.baseHp * scaling * variance);
   const rewardHappy = Math.floor(maxHp * template.rewardRatio);
+  const specials = createSpecials(template.id, loop, rng);
   return {
     id: `${template.id}_${difficultyIndex}`,
     name: template.name,
     maxHp,
     hp: maxHp,
     rewardHappy,
+    damageTakenMult: 1,
+    specials: specials.length ? specials : undefined,
   };
+}
+
+function createSpecials(
+  templateId: string,
+  loop: number,
+  rng: ReturnType<typeof createRng>,
+): EnemySpecial[] {
+  const specials: EnemySpecial[] = [];
+  if (loop >= 1) {
+    const cooldown = Math.max(8, 14 - loop * 2);
+    const duration = Math.min(7, 4 + loop);
+    const magnitude = Math.max(0.45, 0.7 - loop * 0.08);
+    specials.push({
+      id: `${templateId}.barrier`,
+      type: 'barrier',
+      cooldown,
+      duration,
+      magnitude,
+    });
+  }
+  if (loop >= 2) {
+    const cooldown = Math.max(10, 18 - loop * 2);
+    const magnitude = Math.min(0.16, 0.08 + loop * 0.02);
+    specials.push({
+      id: `${templateId}.drain`,
+      type: 'drain',
+      cooldown,
+      duration: 0.5,
+      magnitude,
+    });
+  }
+  return specials;
 }
