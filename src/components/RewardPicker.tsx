@@ -10,12 +10,27 @@ export function RewardPicker() {
   const { t } = useTranslation();
   const showReward = useRunStore((state) => state.showReward);
   const rewardChoices = useRunStore((state) => state.rewardChoices);
+  const rewardTier = useRunStore((state) => state.rewardTier);
   const applyReward = useRunStore((state) => state.applyReward);
   const activeArchetype = useBuildStore((state) => state.activeArchetype);
 
   if (!showReward) {
     return null;
   }
+
+  const isBossReward = rewardTier === 'boss';
+  const title = isBossReward
+    ? t('reward.bossTitle', { defaultValue: 'Boss Reward Cards' })
+    : t('reward.title');
+  const helper = isBossReward
+    ? t('reward.bossHelper', { defaultValue: 'Choose one enhanced boss reward.' })
+    : t('reward.helper');
+  const dialogClassName = [
+    'w-full max-w-4xl rounded-3xl p-6 shadow-2xl',
+    isBossReward
+      ? 'border border-amber-200 bg-gradient-to-br from-white/95 via-amber-50/95 to-white'
+      : 'border border-white/40 bg-white/95',
+  ].join(' ');
 
   const handleSelect = (cardId: string) => {
     const bonus = getRewardBonus(cardId);
@@ -36,13 +51,13 @@ export function RewardPicker() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.18 }}
-        className="w-full max-w-4xl rounded-3xl border border-white/40 bg-white/95 p-6 shadow-2xl"
+        className={dialogClassName}
         role="dialog"
         aria-modal="true"
-        aria-label={t('reward.title')}
+        aria-label={title}
       >
-        <h3 className="text-xl font-semibold text-plum-900 md:text-2xl">{t('reward.title')}</h3>
-        <p className="mt-1 text-sm text-plum-600 md:text-base">{t('reward.helper')}</p>
+        <h3 className="text-xl font-semibold text-plum-900 md:text-2xl">{title}</h3>
+        <p className="mt-1 text-sm text-plum-600 md:text-base">{helper}</p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {rewardChoices.map((id) => {
             const card = getRewardCard(id);
@@ -51,6 +66,23 @@ export function RewardPicker() {
             const name = t(bonus.nameKey);
             const description = t(bonus.descKey);
             const isFocus = activeArchetype && activeArchetype === card.archetype;
+            const categoryLabel = t(`reward.category.${card.category}`, {
+              defaultValue:
+                card.category === 'stat'
+                  ? 'Stat boost'
+                  : card.category === 'passive'
+                  ? 'Passive skill'
+                  : 'Hybrid',
+            });
+            const rarityLabel = t(`reward.rarity.${card.rarity ?? 'standard'}`, {
+              defaultValue: card.rarity === 'boss' ? 'Boss' : 'Standard',
+            });
+            const cardClassName = [
+              'flex h-full flex-col items-start gap-3 rounded-2xl border p-4 text-left shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum-300 hover:border-transparent hover:shadow-xl md:p-5',
+              card.rarity === 'boss'
+                ? 'border-amber-200 bg-amber-50/90'
+                : 'border-plum-200 bg-white/90',
+            ].join(' ');
             return (
               <motion.button
                 whileHover={{ y: -6, scale: 1.02 }}
@@ -58,8 +90,8 @@ export function RewardPicker() {
                 type="button"
                 key={card.id}
                 onClick={() => handleSelect(card.id)}
-                className="flex h-full flex-col items-start gap-3 rounded-2xl border border-plum-200 bg-white/90 p-4 text-left shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum-300 hover:border-transparent hover:shadow-xl md:p-5"
-                aria-label={`${t('reward.title')}: ${name}`}
+                className={cardClassName}
+                aria-label={`${title}: ${name}`}
               >
                 <span
                   className={[
@@ -83,9 +115,14 @@ export function RewardPicker() {
                   <span className="rounded-full bg-plum-100 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
                     {t('build.reward.tier', { tier: card.tier })}
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-plum-500/10 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
-                    {t('reward.button')}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-plum-500/10 px-3 py-1 text-xs font-semibold text-plum-600 md:text-sm">
+                      {categoryLabel}
+                    </span>
+                    <span className="rounded-full bg-white/50 px-3 py-1 text-xs font-semibold text-plum-500 md:text-sm">
+                      {rarityLabel}
+                    </span>
+                  </div>
                 </div>
               </motion.button>
             );
@@ -95,3 +132,4 @@ export function RewardPicker() {
     </div>
   );
 }
+

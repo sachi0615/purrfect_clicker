@@ -15,11 +15,18 @@ export type RewardCardId = string;
 
 type BuildArchetype = import('../store/build').BuildArchetype;
 
+export type RewardTier = 'standard' | 'boss';
+
+export type RewardCardCategory = 'stat' | 'passive' | 'hybrid';
+
 export type RewardCard = {
   id: RewardCardId;
   bonusId: string;
   archetype: BuildArchetype;
   tier: 1 | 2 | 3;
+  rarity: RewardTier;
+  category: RewardCardCategory;
+  effectPreview?: string;
   apply?: (mods: TempMods) => TempMods;
 };
 
@@ -31,17 +38,21 @@ export type Enemy = {
   rewardHappy: number;
   damageTakenMult?: number;
   specials?: EnemySpecial[];
+  rewardTier?: RewardTier;
+  role?: 'normal' | 'elite' | 'boss';
+  timeLimitSec?: number;
+  baseMaxHp?: number;
+  baseRewardHappy?: number;
 };
 
 export type Stage = {
   id: string;
   name: string;
-  kind: 'goal' | 'boss';
-  goalHappy?: number;
-  boss?: Enemy;
-  rewardPool: RewardCardId[];
-  loop: number;
   order: number;
+  difficulty: number;
+  enemies: Enemy[];
+  boss: Enemy;
+  rewardPools: Record<RewardTier, RewardCardId[]>;
 };
 
 export type EnemySpecial = {
@@ -61,6 +72,7 @@ export type RunState = {
   seed: number;
   startedAt: number;
   stageIndex: number;
+  enemyIndex: number;
   stages: Stage[];
   happy: number;
   totalPets: number;
@@ -70,6 +82,10 @@ export type RunState = {
   alive: boolean;
   cleared: boolean;
   characterId: CharacterId;
+  bossEngaged: boolean;
+  bossTimeLeft: number | null;
+  gameStage: number;
+  lastUpdateAt: number;
 };
 
 export type MetaProgress = {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -25,12 +25,15 @@ export function BossModal() {
   }
 
   const stage = run.stageIndex < run.stages.length ? run.stages[run.stageIndex] : null;
-  if (!stage || stage.kind !== 'boss' || !stage.boss) {
+  if (!stage || !stage.boss) {
     return null;
   }
 
   const boss = stage.boss;
   const bossName = t(`boss.enemies.${boss.id}`, { defaultValue: boss.name });
+  const timeLimit = boss.timeLimitSec ?? null;
+  const timeRemaining =
+    timeLimit !== null ? Math.max(0, Math.ceil(run.bossTimeLeft ?? timeLimit)) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur">
@@ -67,6 +70,12 @@ export function BossModal() {
             </span>
           </div>
           <Progress value={boss.hp} max={boss.maxHp} />
+          {timeRemaining !== null ? (
+            <div className="flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50/80 px-4 py-2 text-sm text-amber-700 shadow-sm md:text-base">
+              <span>{t('boss.timeLimit', { defaultValue: 'Time limit' })}</span>
+              <span className="font-semibold">{timeRemaining}s</span>
+            </div>
+          ) : null}
           <div className="flex items-center justify-between rounded-2xl border border-plum-100 bg-white/70 px-4 py-2 text-sm text-plum-600 shadow-sm md:text-base">
             <span>
               {t('boss.clickPower')}:{' '}
